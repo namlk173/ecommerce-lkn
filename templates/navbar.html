@@ -1,0 +1,51 @@
+{% load static %}
+<div class="navbar-position">
+    <div class="container-fluid navbar-fixed fixed-top">
+        <div class="row d-flex align-items-center justify-content-center h-100">
+            <div class="col-2 text-center">
+                <a href="{% url 'home' %}" class="nav-link text-white"><span style="font-size: 1.5rem;">Nhóm 15</span></a>
+            </div>
+            <div class="form-outline form-white col-6 text-center">
+                <form class="d-flex search" action="" method="GET">
+                    <input class="form-control " style="color: #78788e; border-radius: 2px; border: none;padding: 5px 12px; max-height: 40px;" type="text" placeholder="Tìm kiếm sản phẩm, danh mục mong muốn..." aria-label="Search" name="q" >
+                    <button class="" style=" background-color: rgb(13 92 182); color: #ffffff; max-height: 40px; border: none; border-radius: 2px; padding: 5px 12px; display: inline-flex;" type="submit"><i class="fa-solid fa-magnifying-glass" style="margin-right: 5px;"></i> Search</button>
+                </form>
+            </div>
+            {%  if request.user.customer_or_employee == 'Employee' or request.user.is_staff  %}
+            <div class="col-1 text-center">
+                <a href="{% url 'manage-product' %}" style="text-decoration: none;" class="text-white">   
+                   Manage
+                </a>
+            </div>
+            {% endif %}
+            <div class="col-2 text-white d-flex justify-content-center align-items-center">
+                {% if request.user.is_authenticated %}
+                <div class="">
+                    <!-- <i class="fa-solid fa-user-large" style="margin-right: 1rem;"></i> -->
+                    <img src="{{request.user.avatar.url}}" alt="" srcset="" class="rounded-circle" style="width: 5vh; margin-right: 3%;">
+                </div>
+                <div class="d-flex flex-column align-items-center">
+                    <div>
+                        <a data-bs-toggle="collapse" data-bs-target="#demo" class="text-white">@{{request.user.username}}</a>
+                        <div id="demo" class="collapse text-white">
+                            <a class="text-white" href="{% url 'logout' %}">Logout</a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{% url 'login' %}" style="text-decoration: none;" class="text-white"><i class="fa-solid fa-user-large" style="margin-right: 1rem;"></i>Login</a>
+                {% endif %}
+            </div>
+            <div class="col-1">
+                <a href="{% url 'cart' %}" class="nav-link text-white d-flex">
+                    <div>
+                        <div class="Cart-icon"><i class="fa-solid fa-cart-shopping cart-navbar-icon"></i>
+                            <div class="announce">{{cart.order.all.count}}</div>
+                        </div>
+                    </div>
+                    <span class="cart-navbar">Cart</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

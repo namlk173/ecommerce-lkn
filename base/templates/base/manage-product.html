@@ -1,0 +1,76 @@
+{% extends 'index.html' %}
+
+{% block content %}
+
+{%  if request.user.customer_or_employee == 'Employee' or request.user.is_staff  %}
+<div class="d-flex justify-content-evenly topic-item">
+    <a class="nav-link" href="{% url 'manage-product' %}"><div class="p-1 font-color2">All</div></a>
+    {% for topic in topics %}
+    <a class="nav-link" href="{% url 'manage-product' %}?q={{topic}}"><div class="p-1 font-color2">{{topic}}</div></a>
+    {% endfor %}
+</div>
+<div class="container-fluid pt-4" style="background-color: #f5f5fa;">
+    <div class="container" style="background-color: #ffffff;">
+        <p class="pt-3" style="font-size: 2rem;">Manage Product</p>
+        <div>
+            <strong class="choose_category">Add product</strong>
+        </div>
+        <div class="row pt-3 mb-5">
+            <div class="col-3 d-flex justify-content-start">
+                <form action=" " method="POST">
+                    {% csrf_token %}
+                    <select name="category" required id="id_category">
+                        {% for category in category %}
+                        <option value="{{category.id}}">{{category}}</option>
+                        {% endfor %}
+                    </select>
+                    <input type="submit" name="submit_category" id="submit_category" value="GO" class="btn-addproduct btn btn-sm">
+                </form>
+                
+            </div>
+        </div>       
+        <table class="table text-center">
+            <thead>
+                <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Price</th>
+                <th scope="col">Product category</th>
+                <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody> 
+                {% for product in products %}
+                <tr>
+                <th scope="row" class="sn">1</th>
+                <td><p class="book-name-dot book-name-dot-50">{{product.name}}</p></td>
+                <td>{{product.price}}đ</td>
+                <td>{{product.category.name}}</td>
+                <td>
+                    <div class="col d-flex justify-content-evenly">
+                        <a href="{% url 'order-product'  product.category.id product.id %}" style="color: #03a9f4; padding: 0 0.3rem;"><i class="fa-solid fa-eye"></i></a>
+                        <a href="{% url 'update-product' product.category.id product.id %}" style="color: #FFC107; padding: 0 0.3rem"><i class="fa-solid fa-pen"></i></a>
+                        <a href="{% url 'delete-product' product.id %}"onclick="if (confirm('Are you want to delete this product?')){return true;}else{event.stopPropagation(); event.preventDefault();};" style="color: #dc3545; padding: 0 0.3rem" ><i class="fa-solid fa-trash"></i></a>
+                    </div>
+                </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% else %}
+<div class="col-12 d-flex justify-content-center text-danger" style="margin-top: 8rem;">
+    <h3>You not have permission</h3>
+</div>
+{% endif %}
+{% for message in messages %}
+<div class="alert alert-success alert-position" role="alert" id="alert">
+    {{message}}
+    <span class="btn-custom"><i class="fa-solid fa-xmark"></i></span>
+</div>
+{% endfor %}
+
+
+{% endblock %}

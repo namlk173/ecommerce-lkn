@@ -1,0 +1,51 @@
+*{
+    padding: 0;
+    margin: 0;
+    font-family: 'Hubballi', cursive;
+    box-sizing: border-box;
+    font-size: 1.1rem;
+}
+html{
+    background-color: #f5f5fa;
+}
+.navbar-position{
+    margin-bottom: 5.24rem;
+}
+.navbar-fixed{
+    background-color: #1a94ff;
+    height: 12vh;
+}
+.font-color1{
+    color: #ffffff;
+}
+.font-color2{
+    color: rgb(56, 56, 61);
+    z-index: 1000;
+}
+.search-2{
+    background-color: rgb(13 92 182);
+    color: #ffffff;
+    max-width: 20%;
+    max-height: 40px;
+    border: none;
+    border-radius: 2px;
+    padding: 5px 12px;
+}
+.search-1{
+    color: #78788e;
+    border-radius: 2px;
+    border: none;
+    padding: 5px 12px;
+    max-width: 20%;
+    max-height: 40px;
+}
+.logo{
+    max-width: 4rem;
+}
+.topic-item{
+    min-height: 2rem;
+    background-color: #ffffff;
+}
+.product:hover{
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
