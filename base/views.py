@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
-from .models import MobilePhone, User, Product, Book, Clothes, Category, OrderProduct, Cart
+from .models import Employee, MobilePhone, User, Product, Book, Clothes, Category, OrderProduct, Cart, Function
 from .form import UserForm, MyUserCreationForm, MobilePhoneForm, BookForm, ClothesForm
 
 
@@ -16,6 +16,10 @@ def Home(request):
     #     print('admin')
     # else:
     #     print('Normal user')
+    if request.user.is_authenticated:
+        if request.user.functionality_of_user.name == 'Employee':
+            request.user = Employee.objects.get(id=request.user.id)
+            
     if request.user.is_authenticated:
         cart = Cart.objects.get(user__id = request.user.id)
     else:
@@ -72,7 +76,7 @@ def Logout(request):
 
 def registerPage(request):
     form = MyUserCreationForm()
-
+    funtionality = Function.objects.get(name = 'Customer')
     if request.method == 'POST':
         form = MyUserCreationForm(request.POST)
         try:
@@ -91,6 +95,7 @@ def registerPage(request):
             user = form.save(commit=False)
             user.username = user.username.lower()
             user.email = user.email.lower()
+            user.functionality_of_user = funtionality
             user.save()
             login(request, user)
             Cart.objects.create(

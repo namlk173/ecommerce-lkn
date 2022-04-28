@@ -17,13 +17,18 @@ class Address(models.Model):
         return self.exact_address
 
 # ---------------------------------------------------------------------------------------- #
+class Function(models.Model):
+    name = models.TextField(max_length=100)
 
+    class Meta:
+        pass
+    def __str__(self):
+        return self.name
+
+# ---------------------------------------------------------------------------------------- #
 class User(AbstractUser):
 
-    customer_or_employee_choice = [
-        ('Employee', 'Employee'),
-        ('Customer', 'Customer')
-    ]
+    functionality_of_user = models.ForeignKey(Function, on_delete=models.CASCADE, null=True, blank=True)
     name = models.CharField(max_length=200, null=True, blank=True)
     email = models.EmailField(unique=True, null=True)
     bio = models.TextField(null=True, blank=True)
@@ -32,13 +37,7 @@ class User(AbstractUser):
     full_name = models.TextField(max_length=100, null=True, blank=True)
     SDT = models.CharField(max_length=20, null=True, blank=True)
     adress = models.ManyToManyField(Address, blank=True)
-
-    customer_or_employee = models.CharField(
-        max_length=100, 
-        choices=customer_or_employee_choice,
-        default='Customer',
-    )
-
+    
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 # ---------------------------------------------------------------------------------------- #
@@ -47,7 +46,7 @@ class Customer(User):
     class Meta:
         pass
     def __str__(self):
-        return f"{self.full_name}"
+        return f"{self.email}"
 
 # -----------------------------------------------------------------------------------------#
 class Employee(User):

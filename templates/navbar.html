@@ -11,7 +11,7 @@
                     <button class="" style=" background-color: rgb(13 92 182); color: #ffffff; max-height: 40px; border: none; border-radius: 2px; padding: 5px 12px; display: inline-flex;" type="submit"><i class="fa-solid fa-magnifying-glass" style="margin-right: 5px;"></i> Search</button>
                 </form>
             </div>
-            {%  if request.user.customer_or_employee == 'Employee' or request.user.is_staff  %}
+            {%  if request.user.position == 'Product manager' or request.user.is_staff  %}
             <div class="col-1 text-center">
                 <a href="{% url 'manage-product' %}" style="text-decoration: none;" class="text-white">   
                    Manage

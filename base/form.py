@@ -7,10 +7,10 @@ from .models import Clothes, Customer, MobilePhone, Product, User, Book
 class MyUserCreationForm(UserCreationForm):
     class Meta:
         model = Customer
-        fields = ['name', 'username', 'email', 'password1', 'password2']
+        fields = ['full_name', 'username', 'email', 'password1', 'password2']
     def __init__(seft, *args, **kwargs):
         super(MyUserCreationForm, seft).__init__(*args, **kwargs)
-        seft.fields['name'].widget.attrs['class'] = 'form-control  bg-dark text-white form-register'
+        seft.fields['full_name'].widget.attrs['class'] = 'form-control  bg-dark text-white form-register'
         seft.fields['username'].widget.attrs['class'] = 'form-control  bg-dark text-white form-register'
         seft.fields['email'].widget.attrs['class'] = 'form-control  bg-dark text-white form-register'
         seft.fields['password1'].widget.attrs['class'] = 'form-control  bg-dark text-white form-register'
