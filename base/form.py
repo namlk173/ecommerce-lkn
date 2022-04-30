@@ -1,7 +1,7 @@
 from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
-from .models import Clothes, Customer, MobilePhone, Product, User, Book
+from .models import Clothes, Customer, MobilePhone, Product, User, Book, Address, Employee
 
 
 class MyUserCreationForm(UserCreationForm):
@@ -35,6 +35,18 @@ class BookForm(forms.ModelForm):
         seft.fields['number_page'].widget.attrs['placeholder'] = 'Số trang'
         seft.fields['author'].widget.attrs['placeholder'] = 'Tác giả/ Dịch giả'
         seft.fields['book_category'].widget.attrs['placeholder'] = 'Loại sách'
+        # ---------------------------------------------------------------------#
+        seft.fields['name'].widget.attrs['class'] = 'form-control'
+        seft.fields['description'].widget.attrs['class'] = 'form-control'
+        seft.fields['price'].widget.attrs['class'] = 'form-control'
+        seft.fields['company'].widget.attrs['class'] = 'form-control'
+        seft.fields['publish_date'].widget.attrs['class'] = 'form-control'
+        seft.fields['width'].widget.attrs['class'] = 'form-control'
+        seft.fields['height'].widget.attrs['class'] = 'form-control'
+        seft.fields['number_page'].widget.attrs['class'] = 'form-control'
+        seft.fields['author'].widget.attrs['class'] = 'form-control'
+        seft.fields['book_category'].widget.attrs['class'] = 'form-control'
+
 
 
 class MobilePhoneForm(forms.ModelForm):
@@ -63,7 +75,23 @@ class MobilePhoneForm(forms.ModelForm):
         seft.fields['dpg'].widget.attrs['placeholder'] = 'Độ phân giải màn hình (pixel)' 
         seft.fields['ram'].widget.attrs['placeholder'] = 'Bộ nhớ Ram (GB)'
         seft.fields['rom'].widget.attrs['placeholder'] = 'Bộ nhớ Rom (GB)'
-        
+        # ----------------------------------------------------------------#
+        seft.fields['name'].widget.attrs['class'] = 'form-control'
+        seft.fields['price'].widget.attrs['class']  = 'form-control'
+        seft.fields['description'].widget.attrs['class']  = 'form-control'
+        seft.fields['brand'].widget.attrs['class'] = 'form-control'
+        seft.fields['gen'].widget.attrs['class'] = 'form-control'
+        seft.fields['pin'].widget.attrs['class'] = 'form-control'
+        seft.fields['screen_type'].widget.attrs['class'] = 'form-control'
+        seft.fields['screen_size'].widget.attrs['class'] = 'form-control'
+        seft.fields['chip'].widget.attrs['class'] = 'form-control'
+        seft.fields['gpu'].widget.attrs['class'] = 'form-control'
+        seft.fields['sim_number'].widget.attrs['class'] = 'form-control'
+        seft.fields['weight'].widget.attrs['class'] = 'form-control'
+        seft.fields['size_of_phone'].widget.attrs['class'] = 'form-control'
+        seft.fields['dpg'].widget.attrs['class'] = 'form-control' 
+        seft.fields['ram'].widget.attrs['class'] = 'form-control'
+        seft.fields['rom'].widget.attrs['class'] = 'form-control'
 
 class ClothesForm(forms.ModelForm):
     class Meta:
@@ -81,6 +109,15 @@ class ClothesForm(forms.ModelForm):
         seft.fields['brand'].widget.attrs['placeholder'] = 'Hãng'
         seft.fields['size'].widget.attrs['placeholder'] = 'Kích cỡ'
         seft.fields['type'].widget.attrs['placeholder'] = 'Loại sẩn phẩm'
+        # ------------------------------------------------------------#
+        seft.fields['name'].widget.attrs['class'] = 'form-control'
+        seft.fields['description'].widget.attrs['class'] = 'form-control'
+        seft.fields['price'].widget.attrs['class'] = 'form-control'
+        seft.fields['material'].widget.attrs['class'] = 'form-control'
+        seft.fields['origin'].widget.attrs['class'] = 'form-control'
+        seft.fields['brand'].widget.attrs['class'] = 'form-control'
+        seft.fields['size'].widget.attrs['class'] = 'form-control'
+        seft.fields['type'].widget.attrs['class'] = 'form-control'
 
 
 class UserForm(ModelForm):

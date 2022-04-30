@@ -1,20 +1,7 @@
-from random import choices
-from xml.parsers.expat import model
+from tkinter import CASCADE
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
-# ---------------------------------------------------------------------------------------- #
-class Address(models.Model):
-    country = models.TextField(max_length=200, null=True, blank=True)
-    province = models.TextField(max_length=200, null=True, blank=True)
-    district = models.TextField(max_length=200, null=True, blank=True)
-    ward = models.TextField(max_length=200, null=True, blank=True)
-    exact_address = models.TextField(max_length=200)
-    
-    class Meta:
-        pass
-    def __str__(self):
-        return self.exact_address
 
 # ---------------------------------------------------------------------------------------- #
 class Function(models.Model):
@@ -36,10 +23,24 @@ class User(AbstractUser):
     avatar = models.ImageField(null=True, default="avatar.png")
     full_name = models.TextField(max_length=100, null=True, blank=True)
     SDT = models.CharField(max_length=20, null=True, blank=True)
-    adress = models.ManyToManyField(Address, blank=True)
-    
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
+
+# ---------------------------------------------------------------------------------------- #
+class Address(models.Model):
+    country = models.TextField(max_length=200)
+    province = models.TextField(max_length=200)
+    district = models.TextField(max_length=200)
+    ward = models.TextField(max_length=200)
+    exact_address = models.TextField(max_length=200)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    
+    class Meta:
+        pass
+    def __str__(self):
+        return self.exact_address
+
 # ---------------------------------------------------------------------------------------- #
 class Customer(User):
 
@@ -174,3 +175,19 @@ class Cart(models.Model):
 
     def __str__(self):
         return f"Cart of {self.user}"
+
+
+# ----------------------------------------------------------------------------------------- #
+
+class CheckOut(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    address_delivery = models.ForeignKey(Address, on_delete=models.CASCADE)
+    updated = models.DateTimeField(auto_now= True)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta: 
+        pass
+    
+    def __str__(self):
+        return f"Check out for {self.user}"

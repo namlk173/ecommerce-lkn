@@ -4,8 +4,8 @@
 
 <div class="container-fluid" style="background-color: #f5f5fa;">
     <div class="Cart-title">Cart</div>
-       <div class="container">
-           <div class="col-8">
+       <div class="container d-flex justify-content-around">
+            <div class="col-8">
                 <div class="row text-center p-3 rounded bg-white mb-3" >
                     <div class="col-5 text-start">
                         All ({{cart.order.all.count}} products)
@@ -45,15 +45,38 @@
                         {{order.total_price}} đ
                     </div>
 
-                    <div class="col-1"><a href="{% url 'delete-order' cart.id order.id %}" class="text-dark"onclick="if (confirm('Are you want to remove this order from your cart?')){return true;}else{event.stopPropagation(); event.preventDefault();};" ><i class="fa-solid fa-trash-can"></i></a></i></div>
+                    <div class="col-1"><a href="{% url 'delete-order' cart.id order.id %}" id="delete-{{order.id}}" class="text-dark"onclick="if (confirm('Are you want to remove this order from your cart?')){return true;}else{event.stopPropagation(); event.preventDefault();};" ><i class="fa-solid fa-trash-can"></i></a></i></div>
 
                 </div>
                 {% endfor %}
-           </div>
-           <div class="col-4">
-                
-           </div>
-       </div> 
+            </div>
+            <div class="col-3">
+                <div class="row p-3 rounded bg-white mb-3">
+                    <div class="d-flex justify-content-between mb-3"> 
+                        {% if address is not none %}
+                        <div>Giao tới</div>
+                        <div><a href="">Thay đổi</a></div>
+                        {% else %}
+                        <strong><a href="">Add address for delivery</strong></a>
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div>
+                            <strong> 
+                            {{request.user.full_name}} | {{request.user.SDT}}
+                            | <a href="">Update information</a>  
+                            </strong>
+                        </div>
+                        <div>
+                            {% if address is not none %}
+                            {{address.exact_address}}, Phường/Xã {{address.ward}}, Quận/Huyện {{address.district}}, Tỉnh {{address.province}}, {{address.country}}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
 </div>
 
 {% for message in messages %}

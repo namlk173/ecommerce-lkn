@@ -4,7 +4,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
-from .models import Employee, MobilePhone, User, Product, Book, Clothes, Category, OrderProduct, Cart, Function
+from .models import Address, Employee, MobilePhone, User, Product, Book, Clothes, Category, OrderProduct, Cart, Function
 from .form import UserForm, MyUserCreationForm, MobilePhoneForm, BookForm, ClothesForm
 
 
@@ -247,10 +247,16 @@ def manageOrder(request):
 
 @login_required(login_url='login')
 def cart(request):
-
+    
     cart = Cart.objects.get(user__id = request.user.id)
 
-    context = {'cart': cart}
+    try:
+        address = Address.objects.get(user_id = request.user.id)
+    except:
+        address = None
+
+    context = {'cart': cart, 'address': address}
+
     return render(request, 'base/cart.html', context)
 
 @login_required(login_url='login')

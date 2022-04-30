@@ -321,8 +321,8 @@
 
             $("#decrement-quantity").click(function(){
                 var quantity = parseInt($("#quantity").val());
-                if(quantity==0){
-                    $("#quantity").val(quantity);
+                if(quantity<=0){
+                    $("#quantity").val(0);
                 }
                 else{
                     $("#quantity").val(quantity - 1);
@@ -338,15 +338,26 @@
             var id_quantity = 'quantity-product-cart-' + id;
             var id_price = 'price-product-cart-' + id;
             var id_total_price = 'total-price-cart-' + id;
+            var delete_order = 'delete-' + id;
 
             var quantity = parseInt(document.getElementById(id_quantity).value);
-            if(quantity !=0){
+            if(quantity -1 !=0){
                 document.getElementById(id_quantity).value = quantity - 1; 
                 var total_price  = (quantity-1) * parseInt(document.getElementById(id_price).textContent.trim().slice(0,-2).replaceAll(',',''));
                 document.getElementById(id_total_price).innerHTML = total_price.toLocaleString() + ' đ';
             }   
             else {
-                confirm('Are you want to remove the product form cart!');
+                if (confirm('Are you want to remove this order from your cart?'))
+                {   
+                    console.log(delete_order);
+                    var url = document.getElementById(delete_order).getAttribute("href");
+                    console.log(url);
+                    window.location.href = url;
+                }
+                else
+                {
+                    event.stopPropagation(); event.preventDefault();
+                };
             }
         }
 
