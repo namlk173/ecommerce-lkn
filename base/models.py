@@ -29,10 +29,10 @@ class User(AbstractUser):
 
 # ---------------------------------------------------------------------------------------- #
 class Address(models.Model):
-    country = models.TextField(max_length=200)
-    province = models.TextField(max_length=200)
-    district = models.TextField(max_length=200)
-    ward = models.TextField(max_length=200)
+    country = models.TextField(max_length=200, null=True)
+    province = models.TextField(max_length=200, null=True)
+    district = models.TextField(max_length=200, null=True)
+    ward = models.TextField(max_length=200, null=True)
     exact_address = models.TextField(max_length=200)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     
@@ -154,7 +154,7 @@ class OrderProduct(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     
     class Meta:
-        ordering = ['-updated', '-created']
+        ordering = ['-created']
     
     def __str__(self):
         return f"{self.user} - {self.quantity} : {self.product.name} "

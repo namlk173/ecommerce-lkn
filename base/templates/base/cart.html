@@ -3,11 +3,15 @@
 {% block content %}
 
 <div class="container-fluid" style="background-color: #f5f5fa;">
+<form action="" method="post">
+    {% csrf_token %}
     <div class="Cart-title">Cart</div>
        <div class="container d-flex justify-content-around">
             <div class="col-8">
+
                 <div class="row text-center p-3 rounded bg-white mb-3" >
                     <div class="col-5 text-start">
+                        <input type="checkbox" id="all_checkbox" class="form-check-input" onchange="checkbox_order_cart_for_all()">
                         All ({{cart.order.all.count}} products)
                     </div>
                     <div class="col-2">Price</div>
@@ -15,9 +19,15 @@
                     <div class="col-2">Total</div>
                     <div class="col-1"><i class="fa-solid fa-trash-can"></i></div>
                 </div>
+                
                 {% for order in cart.order.all %}
                 <div class="row rounded bg-white text-center mb-3 p-3">
-                    <div class="col-5">
+
+                    <div class="col-5 d-flex">
+                        <div class="d-flex align-items-center">
+                            <input type="checkbox" name="checkbox_products[]" value="{{order.id}}" class="form-check-input p-2" onchange="check_order_cart()">
+                        </div>
+                        
                         <a href="{% url 'order-product' order.product.category.id order.product.id %}" class="d-flex text-dark">
                             <div class="col-5 text-start">
                                 <div class="card image-product-cart">
@@ -30,28 +40,30 @@
                         </a>
                     </div>
 
-                    <div class="col-2 price-product-cart" id="price-product-cart-{{order.id}}">
+                    <div class="col-2 price-product-cart d-flex align-items-center justify-content-center" id="price-product-cart-{{order.id}}">
                         {{order.product.price}} đ
                     </div>
 
-                    <div class="col-2 d-flex justify-content-center">
+                    <div class="col-2 d-flex justify-content-center d-flex align-items-center justify-content-center">
                         <span class="quantity-cart-decrement" id="{{order.id}}" onclick="decrement(this.id)"><i class="fa-solid fa-minus minus-custom-quantity"></i></span>
-                        <input type="text" value="{{order.quantity}}" id="quantity-product-cart-{{order.id}}" class="quantity-product-cart" inputmode="numeric" disabled>
+                        <input type="text" value="{{order.quantity}}" id="quantity-product-cart-{{order.id}}" class="quantity-product-cart" inputmode="numeric" name="quantity-product-cart-{{order.id}}" onchange="Change_value_quantity()">
                         <span class="quantity-cart-increase" id="{{order.id}}" onclick="increase(this.id)"><i class="fa-solid fa-plus plus-custom-quatity"></i></span>
                     </div>
 
                     
-                    <div class="col-2 total-price-cart" id="total-price-cart-{{order.id}}">
+                    <div class="col-2 total-price-cart d-flex align-items-center justify-content-center" id="total-price-cart-{{order.id}}">
                         {{order.total_price}} đ
                     </div>
 
-                    <div class="col-1"><a href="{% url 'delete-order' cart.id order.id %}" id="delete-{{order.id}}" class="text-dark"onclick="if (confirm('Are you want to remove this order from your cart?')){return true;}else{event.stopPropagation(); event.preventDefault();};" ><i class="fa-solid fa-trash-can"></i></a></i></div>
+                    <div class="col-1 d-flex align-items-center justify-content-center"><a href="{% url 'delete-order' cart.id order.id %}" id="delete-{{order.id}}" class="text-dark"onclick="if (confirm('Are you want to remove this order from your cart?')){return true;}else{event.stopPropagation(); event.preventDefault();};" ><i class="fa-solid fa-trash-can"></i></a></div>
 
                 </div>
                 {% endfor %}
             </div>
             <div class="col-3">
+
                 <div class="row p-3 rounded bg-white mb-3">
+
                     <div class="d-flex justify-content-between mb-3"> 
                         {% if address is not none %}
                         <div>Giao tới</div>
@@ -60,6 +72,7 @@
                         <strong><a href="">Add address for delivery</strong></a>
                         {% endif %}
                     </div>
+
                     <div>
                         <div>
                             <strong> 
@@ -73,10 +86,29 @@
                             {% endif %}
                         </div>
                     </div>
+
                 </div>
+
+                <div class="row p-3 rounded bg-white mb-3">
+                    <div class="d-flex justify-content-between mb-3" >
+                        <div>Tạm tính</div>
+                        <div id="temp_total_price">0 đ</div>
+                    </div>
+                    <hr style="height: 1px; color: #ccc;">
+                    <div class="d-flex justify-content-between mb-3">
+                        <div>Tổng tiền</div>
+                        <div class="total-price" id="total_price_official">0 đ</div>
+                    </div>
+                </div>
+
+                <div class="row bg-white rounded">
+                    <input type="submit" name="buy" id="buy" value="Buy(0)" class="btn btn-buy">
+                </div>
+
             </div>
         </div>
     </div> 
+</form>
 </div>
 
 {% for message in messages %}

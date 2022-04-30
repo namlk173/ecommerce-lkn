@@ -255,6 +255,13 @@ def cart(request):
     except:
         address = None
 
+    if request.method == 'POST':
+        for order in cart.order.all():
+            id_quantity = 'quantity-product-cart-' + str(order.id) 
+            order.quantity = request.POST.get(id_quantity)
+            order.save()
+        checkbox_order_id = request.POST.getlist('checkbox_products[]')
+        
     context = {'cart': cart, 'address': address}
 
     return render(request, 'base/cart.html', context)
@@ -265,7 +272,7 @@ def deleteOrder(request, cartId, orderId):
     try:
         cart = Cart.objects.get(id = cartId)
         order = cart.order.get(id = orderId)
-        order.delete()
+        cart.order.remove(order)
     except:
         messages.error(request, 'You can\'t delete this order');    
     return redirect('cart') 
