@@ -1,11 +1,11 @@
-from asyncio.windows_events import NULL
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
+from matplotlib.style import context
 from .models import Address, Employee, MobilePhone, User, Product, Book, Clothes, Category, OrderProduct, Cart, Function
-from .form import UserForm, MyUserCreationForm, MobilePhoneForm, BookForm, ClothesForm
+from .form import UserForm, MyUserCreationForm, MobilePhoneForm, BookForm, ClothesForm, AddressForm
 
 
 
@@ -250,10 +250,11 @@ def cart(request):
     
     cart = Cart.objects.get(user__id = request.user.id)
 
-    try:
-        address = Address.objects.get(user_id = request.user.id)
-    except:
-        address = None
+    list_address = Address.objects.filter(Q(user__id = request.user.id))
+    
+    for address in list_address:
+        print(address.boolean)
+
 
     if request.method == 'POST':
         for order in cart.order.all():
@@ -262,7 +263,7 @@ def cart(request):
             order.save()
         checkbox_order_id = request.POST.getlist('checkbox_products[]')
         
-    context = {'cart': cart, 'address': address}
+    context = {'cart': cart}
 
     return render(request, 'base/cart.html', context)
 
@@ -276,3 +277,14 @@ def deleteOrder(request, cartId, orderId):
     except:
         messages.error(request, 'You can\'t delete this order');    
     return redirect('cart') 
+
+@login_required(login_url='login')
+def updateInforDelivery(request):
+    cart = Cart.objects.get(user__id = request.user.id) 
+    
+    form = AddressForm()
+
+    list_address = Address.objects.filter(Q(user = request.user))
+    
+    context = {'form': form, 'cart' : cart, 'list_address': list_address}
+    return render(request, 'base/update-infor-delivery.html', context)

@@ -1,0 +1,42 @@
+{% extends 'index.html' %}
+
+
+{% block content %}
+<form action="" method="post">
+{% csrf_token %}
+<div class="container-fluid" style="background-color: #f5f5fa;">
+    <div class="container">
+        <div class="row" style="margin-top: 10rem;">
+
+        </div>
+        <span>Chọn địa chỉ giao hàng</span>
+    </div>
+    <div class="container border" style="background-color: #f7f7f7; margin-top: 3rem;">
+        <div class="row" >
+            <div class="col-12">
+                <div class="row d-flex justify-content-center">
+                    <div class="col-2 p-2"><Strong>Full name</Strong></div>
+                    <div class="col-4 p-2"><input type="text" name="full_name" id="" class="form-control" value="{{request.user.full_name}}"></div>
+                </div>
+                <div class="row d-flex justify-content-center">
+                    <div class="col-2 p-2"><Strong>Phone number</Strong></div>
+                    <div class="col-4 p-2"><input type="text" name="phone_number" id="" class="form-control" value="{{request.user.phone_number}}"></div>
+                </div>
+                {% for field in form %}
+                <div class="row d-flex justify-content-center">
+                    <div class="col-2 p-2"><Strong>{{field.label}}</Strong></div>
+                    <div class="col-4 p-2">{{field}}</div>
+                </div>
+                {% endfor %}
+                <div class="row d-flex justify-content-center">
+                    <div class="col-2 p-2"></div>
+                    <div class="col-2 p-2"><a href="{{request.META.HTTP_REFERER}}" class="btn btn-secondary" style="width: 80%;">Cancel</a></div>
+                    <div class="col-2 p-2"><input type="submit" class="btn btn-primary" style="width: 80%;" name="submit_update" value="Update"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+
+{% endblock %}

@@ -1,4 +1,3 @@
-from tkinter import CASCADE
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
@@ -13,6 +12,7 @@ class Function(models.Model):
         return self.name
 
 # ---------------------------------------------------------------------------------------- #
+
 class User(AbstractUser):
 
     functionality_of_user = models.ForeignKey(Function, on_delete=models.CASCADE, null=True, blank=True)
@@ -22,25 +22,27 @@ class User(AbstractUser):
 
     avatar = models.ImageField(null=True, default="avatar.png")
     full_name = models.TextField(max_length=100, null=True, blank=True)
-    SDT = models.CharField(max_length=20, null=True, blank=True)
+    phone_number = models.CharField(max_length=20, null=True, blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
-
 # ---------------------------------------------------------------------------------------- #
+
 class Address(models.Model):
     country = models.TextField(max_length=200, null=True)
     province = models.TextField(max_length=200, null=True)
     district = models.TextField(max_length=200, null=True)
     ward = models.TextField(max_length=200, null=True)
     exact_address = models.TextField(max_length=200)
+    receiver = models.TextField(max_length=100, null=True)
+    phone_number_receiver = models.TextField(max_length=100, null=True)
+    boolean =  models.BooleanField(default=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
-    
+
     class Meta:
         pass
     def __str__(self):
         return self.exact_address
-
 # ---------------------------------------------------------------------------------------- #
 class Customer(User):
 
