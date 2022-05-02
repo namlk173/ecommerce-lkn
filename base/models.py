@@ -1,4 +1,3 @@
-from tabnanny import verbose
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
@@ -179,15 +178,26 @@ class Cart(models.Model):
     def __str__(self):
         return f"Cart of {self.user}"
 
+# ----------------------------------------------------------------------------------------- #
 
 # ----------------------------------------------------------------------------------------- #
 
 class CheckOut(models.Model):
+    status_order = [
+        ('completed', 'completed'),
+        ('delivering', 'delivering'),
+        ('in warehouse', 'in warehouse')
+    ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    order_Items = models.ManyToManyField(OrderProduct, blank=True)
     address_delivery = models.ForeignKey(Address, on_delete=models.CASCADE)
     updated = models.DateTimeField(auto_now= True)
     created = models.DateTimeField(auto_now_add=True)
+    status_order = models.TextField(
+        max_length=50,
+        choices=status_order,
+        default='in warehouse',
+    )
 
     class Meta: 
         pass

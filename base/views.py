@@ -1,11 +1,10 @@
-from ast import operator
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 from matplotlib.style import context
-from .models import Address, Employee, MobilePhone, User, Product, Book, Clothes, Category, OrderProduct, Cart, Function
+from .models import Address, CheckOut, Employee, MobilePhone, User, Product, Book, Clothes, Category, OrderProduct, Cart, Function
 from .form import UserForm, MyUserCreationForm, MobilePhoneForm, BookForm, ClothesForm, AddressForm
 
 
@@ -71,10 +70,12 @@ def Login(request):
     context = {'page': page, 'cart': {}}
     return render(request, 'base/login-register.html', context)
 
+# ----------------------------------------------------------------------------------#
 def Logout(request):
     logout(request)
     return redirect ('home')
 
+# ----------------------------------------------------------------------------------#
 def registerPage(request):
     form = MyUserCreationForm()
     funtionality = Function.objects.get(name = 'Customer')
@@ -109,6 +110,7 @@ def registerPage(request):
 
     return render(request, 'base/login-register.html', {'form': form, 'cart': {}})
 
+# ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def ManagerProduct(request):
 
@@ -121,8 +123,9 @@ def ManagerProduct(request):
     context = {'category' : category, 'products': products, 'cart': {}}
     return render(request, 'base/manage-product.html', context)
 
-# def chooseProduct(request):
 
+
+# ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def DeleteProduct(request, pk):
     
@@ -136,6 +139,7 @@ def DeleteProduct(request, pk):
 
     return redirect('manage-product')
 
+# ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def createProduct(request, CategoryId):
     category = Category.objects.get(id=CategoryId)
@@ -164,6 +168,7 @@ def createProduct(request, CategoryId):
     context = {'form' : form, 'product': category.name, 'cart': {}}
     return render(request, 'base/add-product.html', context)
 
+# ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def updateProduct(request, CategoryId, pk):
     category = Category.objects.get(id=CategoryId)
@@ -194,6 +199,7 @@ def updateProduct(request, CategoryId, pk):
     context = {'category': category.name, 'form': form, 'cart': {}}
     return render(request, 'base/update-product.html', context)
 
+# ----------------------------------------------------------------------------------#
 def orderProduct(request, CategoryId, pk):
     if request.user.is_authenticated:
         cart = Cart.objects.get(user__id = request.user.id)
@@ -241,11 +247,13 @@ def orderProduct(request, CategoryId, pk):
     context = {'product':product, 'category':category.name, "form":form, 'cart': cart}
     return render(request, 'base/order-product.html', context)
 
+# ----------------------------------------------------------------------------------#
 def manageOrder(request):
 
     context = {}
     return render(request, 'base/manage-order.html', context)
 
+# ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def cart(request):
     
@@ -256,8 +264,32 @@ def cart(request):
             id_quantity = 'quantity-product-cart-' + str(order.id) 
             order.quantity = request.POST.get(id_quantity)
             order.save()
-        checkbox_order_id = request.POST.getlist('checkbox_products[]')
-        
+
+        if address:
+            checkbox_order_id = request.POST.getlist('checkbox_products[]') 
+            try:
+                if len(checkbox_order_id)!=0:
+                    
+                    check_out = CheckOut.objects.create(
+                        user = request.user,
+                        address_delivery = address[0]
+                    )
+
+                    for id_order_selected in checkbox_order_id:
+                        try:
+                            order_selected = cart.order.get(id=int(id_order_selected))
+                            check_out.order_Items.add(order_selected)
+                            cart.order.remove(order_selected)
+                            messages.success(request, 'order successful')
+                        except:
+                            messages.error(request, 'Have an error1')
+                else:
+                    messages.error(request, 'You have to selected some order to buy!')
+            except:
+                messages.error(request, 'have an error2')
+        else:
+            messages.error(request, 'Please select an address for delivery')
+
     context = {'cart': cart, 'address' : address}
 
     return render(request, 'base/cart.html', context)
@@ -269,10 +301,12 @@ def deleteOrder(request, cartId, orderId):
         cart = Cart.objects.get(id = cartId)
         order = cart.order.get(id = orderId)
         cart.order.remove(order)
+        messages.success(request, 'Delete order successful'); 
     except:
         messages.error(request, 'You can\'t delete this order');    
     return redirect('cart') 
 
+# ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def chooseAddressDelivery(request):
     cart = Cart.objects.get(user__id = request.user.id) 
@@ -291,6 +325,7 @@ def chooseAddressDelivery(request):
     context = {'cart' : cart, 'list_address': list_address,}
     return render(request, 'base/choose-address-delivery.html', context)
 
+# ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def updateAddressDelivery(request, pk):
     page = 'update'
@@ -304,10 +339,11 @@ def updateAddressDelivery(request, pk):
             messages.success(request, 'Update address for delivery successful') 
             return redirect('choose-address-delivery')
         except:
-            messages.error(request, 'Have a error')
+            messages.error(request, 'Have an error')
     context = {'form': form, 'page': page}
     return render(request, 'base/update-add-address-delivery.html', context)
 
+# ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def addAdressDelivery(request):
     page = 'add'
@@ -325,11 +361,12 @@ def addAdressDelivery(request):
             messages.success(request, 'Add address for delivery successful') 
             return redirect('choose-address-delivery')
         except:
-            messages.error(request, 'have a error') 
+            messages.error(request, 'have an error') 
 
     context = {'form': form, 'page': page}
     return render(request, 'base/update-add-address-delivery.html', context)
 
+# ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def deleteAddressDelivery(request, pk):
     address = Address.objects.get(id=pk)
@@ -339,7 +376,8 @@ def deleteAddressDelivery(request, pk):
         messages.success(request, 'Delete address successful')
         return redirect('choose-address-delivery')
     except:
-        messages.error(request, 'Sorry have a error') 
+        messages.error(request, 'Sorry have an error') 
 
     context = {}
     return render(request, 'base/choose-address-delivery.html', context)
+
