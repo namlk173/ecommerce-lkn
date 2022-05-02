@@ -1,3 +1,4 @@
+from ast import operator
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -249,13 +250,7 @@ def manageOrder(request):
 def cart(request):
     
     cart = Cart.objects.get(user__id = request.user.id)
-
-    list_address = Address.objects.filter(Q(user__id = request.user.id))
-    
-    for address in list_address:
-        print(address.boolean)
-
-
+    address = Address.objects.filter(Q(user__id = request.user.id) & Q(boolean =True))
     if request.method == 'POST':
         for order in cart.order.all():
             id_quantity = 'quantity-product-cart-' + str(order.id) 
@@ -263,7 +258,7 @@ def cart(request):
             order.save()
         checkbox_order_id = request.POST.getlist('checkbox_products[]')
         
-    context = {'cart': cart}
+    context = {'cart': cart, 'address' : address}
 
     return render(request, 'base/cart.html', context)
 
@@ -279,12 +274,72 @@ def deleteOrder(request, cartId, orderId):
     return redirect('cart') 
 
 @login_required(login_url='login')
-def updateInforDelivery(request):
+def chooseAddressDelivery(request):
     cart = Cart.objects.get(user__id = request.user.id) 
-    
-    form = AddressForm()
-
     list_address = Address.objects.filter(Q(user = request.user))
+    list_address = sorted(list_address, key=lambda x: -(x.boolean))
+    if request.method == 'POST':
+        for address in list_address:
+            if  str(address.id) in request.POST:
+                address.boolean = True
+            else:
+                address.boolean = False
+            address.save()
+
+        return redirect('cart')
+
+    context = {'cart' : cart, 'list_address': list_address,}
+    return render(request, 'base/choose-address-delivery.html', context)
+
+@login_required(login_url='login')
+def updateAddressDelivery(request, pk):
+    page = 'update'
+    address = Address.objects.get(id=pk)
+    form = AddressForm(instance = address)
+
+    if request.method == 'POST':
+        form = AddressForm(request.POST, instance = address)
+        try:
+            form.save()
+            messages.success(request, 'Update address for delivery successful') 
+            return redirect('choose-address-delivery')
+        except:
+            messages.error(request, 'Have a error')
+    context = {'form': form, 'page': page}
+    return render(request, 'base/update-add-address-delivery.html', context)
+
+@login_required(login_url='login')
+def addAdressDelivery(request):
+    page = 'add'
+    form = AddressForm()
     
-    context = {'form': form, 'cart' : cart, 'list_address': list_address}
-    return render(request, 'base/update-infor-delivery.html', context)
+    if request.method =='POST':
+
+        form = AddressForm(request.POST)
+
+        try:
+            address =  form.save(commit=False)
+            address.user = request.user
+            address.boolean = False
+            address.save()
+            messages.success(request, 'Add address for delivery successful') 
+            return redirect('choose-address-delivery')
+        except:
+            messages.error(request, 'have a error') 
+
+    context = {'form': form, 'page': page}
+    return render(request, 'base/update-add-address-delivery.html', context)
+
+@login_required(login_url='login')
+def deleteAddressDelivery(request, pk):
+    address = Address.objects.get(id=pk)
+    
+    try:
+        address.delete()
+        messages.success(request, 'Delete address successful')
+        return redirect('choose-address-delivery')
+    except:
+        messages.error(request, 'Sorry have a error') 
+
+    context = {}
+    return render(request, 'base/choose-address-delivery.html', context)

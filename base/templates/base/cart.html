@@ -65,28 +65,25 @@
                 <div class="row p-3 rounded bg-white mb-3">
 
                     <div class="d-flex justify-content-between mb-3"> 
-                        {% if address is not none %}
+                        {% if address %}
                         <div>Giao tới</div>
-                        <div><a href="{% url 'update-infor-delivery' %}">Thay đổi</a></div>
+                        <div><a href="{% url 'choose-address-delivery' %}">Thay đổi</a></div>
                         {% else %}
-                        <strong><a href="{% url 'update-infor-delivery' %}">Add address for delivery</strong></a>
+                        <strong><a href="{% url 'choose-address-delivery' %}">Add address for delivery</strong></a>
                         {% endif %}
                     </div>
-
+                    {% for address in address %}
                     <div>
                         <div>
                             <strong> 
-                            {{request.user.full_name}} | {{request.user.phone_number}}
-                            | <a href="{% url 'update-infor-delivery' %}">Update information</a>  
+                            {{address.receiver}} | {{address.phone_number_receiver}}  
                             </strong>
                         </div>
                         <div>
-                            {% if address is not none %}
-                            {{address.exact_address}}, Phường/Xã {{address.ward}}, Quận/Huyện {{address.district}}, Tỉnh {{address.province}}, {{address.country}}
-                            {% endif %}
+                            {{address.exact_address}}, {{address.ward}}, {{address.district}}, {{address.province}}, {{address.country}}
                         </div>
                     </div>
-
+                    {% endfor %}
                 </div>
 
                 <div class="row p-3 rounded bg-white mb-3">

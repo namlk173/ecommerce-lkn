@@ -130,7 +130,7 @@ class UserForm(ModelForm):
 class AddressForm(ModelForm):
     class Meta:
         model = Address
-        fields = ['country', 'province', 'district', 'ward', 'exact_address']
+        fields = ['receiver', 'phone_number_receiver','country', 'province', 'district', 'ward', 'exact_address']
         
 
     def __init__(self, *args, **kwargs):
@@ -140,4 +140,6 @@ class AddressForm(ModelForm):
         self.fields['district'].widget.attrs['class'] = 'form-control'
         self.fields['ward'].widget.attrs['class'] = 'form-control'
         self.fields['exact_address'].widget.attrs['class'] = 'form-control'
+        self.fields['receiver'].widget.attrs['class'] = 'form-control'
+        self.fields['phone_number_receiver'].widget.attrs['class'] = 'form-control'
         
