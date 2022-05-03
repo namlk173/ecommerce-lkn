@@ -26,6 +26,9 @@ class User(AbstractUser):
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
+
+    def __str__(self):
+        return f"{self.email} - {self.functionality_of_user}"
 # ---------------------------------------------------------------------------------------- #
 
 class Address(models.Model):
@@ -200,7 +203,13 @@ class CheckOut(models.Model):
     )
 
     class Meta: 
-        pass
+        ordering = ['-created']
     
+    def total_bill(self):
+        total = 0
+        for order in self.order_Items:
+            total += order.total_price
+        return total
+
     def __str__(self):
         return f"Check out for {self.user}"

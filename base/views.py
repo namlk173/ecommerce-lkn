@@ -112,19 +112,34 @@ def registerPage(request):
 
 # ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
-def ManagerProduct(request):
+def Manager(request):
+    page = ''
+    try:
+        user = Employee.objects.get(id = request.user.id)
+        if user.position == 'Product manager':
+            page = 'manage-product'
+        elif user.position == 'Order manager':
+            page = 'manage-order'
+    except:
+        page = 'not permission'
 
+    checkouts = CheckOut.objects.all()
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     category = Category.objects.all()
     products = Product.objects.filter(Q(name__icontains = q) | Q(category__name__icontains = q))
-    if request.method == 'POST':
+
+    if request.method == 'POST' and 'submit_category' in request.POST:
         selected = request.POST.get('category', None)
         return redirect('create-product', selected)
-    context = {'category' : category, 'products': products, 'cart': {}}
-    return render(request, 'base/manage-product.html', context)
+    if request.method =='POST' and 'update_checkout' in request.POST:
+        for checkout in checkouts:
+            checkout.status_order = request.POST.get(f"status_order_{checkout.id}")
+            checkout.save()
+        messages.error(request,'Udpate status orders successful')
+    context = {'category' : category, 'products': products, 'cart': {}, 'checkouts':checkouts, 'page': page}
+    return render(request, 'base/manage.html', context)
 
-
-
+# ----------------------------------------------------------------------------------#
 # ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def DeleteProduct(request, pk):
@@ -172,26 +187,26 @@ def createProduct(request, CategoryId):
 @login_required(login_url='login')
 def updateProduct(request, CategoryId, pk):
     category = Category.objects.get(id=CategoryId)
+    product = Product.objects.get(id = pk)
     if category.name == 'Book':
-        book = Book.objects.get(id=pk)
-        form = BookForm(instance=book)
+        form = BookForm(instance=product)
     elif category.name == 'Mobile Phone':
-        phone = MobilePhone.objects.get(id=pk)
-        form = MobilePhoneForm(instance=phone)
+        form = MobilePhoneForm(instance=product)
     elif category.name =='Clothes':
-        clothes = Clothes.objects.get(id=pk)
-        form = ClothesForm(instance=clothes)
+        form = ClothesForm(instance=product)
 
     if request.method == 'POST':
         if category.name == 'Book':
-            form = BookForm(request.POST, request.FILES, instance=book)
+            form = BookForm(request.POST, request.FILES, instance=product)
         elif category.name == 'Mobile Phone':
-            form = MobilePhoneForm(request.POST, request.FILES, instance=phone)
+            form = MobilePhoneForm(request.POST, request.FILES, instance=product)
         elif category.name == 'Clothes':
-            form = ClothesForm(request.POST,request.FILES, instance=clothes)
+            form = ClothesForm(request.POST,request.FILES, instance=product)
         
         if form.is_valid():
-            form.save()
+            product = form.save(commit=False)
+            product.category = category
+            product.save()
             messages.success(request, 'Update product successful')
             return redirect('manage-product')
         else:

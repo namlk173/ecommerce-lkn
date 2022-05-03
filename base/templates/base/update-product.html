@@ -11,12 +11,14 @@
     <form action="" method="post" enctype="multipart/form-data" >
         {% csrf_token %}
         {% for fields in form %}
+            {% if fields.label != 'Category' %}
         <div class="mb-3 row">
             <label for="" class="col-sm-2 col-form-label"><strong>{{fields.label}}:</strong></label>
             <div class="col-sm-10" style="max-height: 10%;">
                 {{fields}}
             </div>
         </div>
+            {% endif %}
         {% endfor%}
         <div class="col-6">
             <div class="d-flex justify-content-center"> 
