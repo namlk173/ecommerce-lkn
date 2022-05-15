@@ -2,11 +2,11 @@
 
 {% block content %}
 
-{%  if page == 'manage-product' %}
-<div class="d-flex justify-content-evenly topic-item">
-    <a class="nav-link" href="{% url 'manage-product' %}"><div class="p-1 font-color2">All</div></a>
-    {% for topic in topics %}
-    <a class="nav-link" href="{% url 'manage-product' %}?q={{topic}}"><div class="p-1 font-color2">{{topic}}</div></a>
+{%  if page == 'manage-product' or page == 'Admin' %}
+<div class="d-flex justify-content-evenly topic-item p-2">
+    <a class="nav-link" href="{% url 'manage' %}"><div class="p-1 font-color2">All</div></a>
+    {% for category in categorys %}
+    <a class="nav-link" href="{% url 'manage' %}?q={{category}}"><div class="p-1 font-color2">{{category}}</div></a>
     {% endfor %}
 </div>
 <div class="container-fluid pt-4" style="background-color: #f5f5fa;">
@@ -20,7 +20,7 @@
                 <form action=" " method="POST">
                     {% csrf_token %}
                     <select name="category" required id="id_category">
-                        {% for category in category %}
+                        {% for category in categorys %}
                         <option value="{{category.id}}">{{category}}</option>
                         {% endfor %}
                     </select>
@@ -42,7 +42,7 @@
             <tbody> 
                 {% for product in products %}
                 <tr>
-                <th scope="row" class="sn">1</th>
+                <th scope="row" class="sn1">1</th>
                 <td><p class="book-name-dot book-name-dot-50">{{product.name}}</p></td>
                 <td>{{product.price}}đ</td>
                 <td>{{product.category.name}}</td>
@@ -59,7 +59,8 @@
         </table>
     </div>
 </div>
-{% elif page == 'manage-order' %}
+{% endif %}
+{% if page == 'manage-order' or page == 'Admin' %}
 <form action="" method="post">
     {% csrf_token %}
     <div class="container-fluid pt-4" style="background-color: #f5f5fa;">
@@ -82,23 +83,23 @@
                 <tbody> 
                     {% for checkout in checkouts %}
                     <tr>
-                    <th scope="row" class="sn">1</th>
-                    <td>{{checkout.address_delivery.receiver}}</td>
-                    <td>{{checkout.address_delivery.exact_address}}, {{checkout.address_delivery.ward}}, {{checkout.address_delivery.district}}, {{checkout.address_delivery.province}}, {{checkout.address_delivery.country}}</td>
+                    <th scope="row" class="sn2">1</th>
+                    <td class="text-start">{{checkout.address_delivery.receiver}}</td>
+                    <td class="text-start">{{checkout.address_delivery.exact_address}}, {{checkout.address_delivery.ward}}, {{checkout.address_delivery.district}}, {{checkout.address_delivery.province}}, {{checkout.address_delivery.country}}</td>
                     
                     <td>
                         {% for order in checkout.order_Items.all %}
-                        <div>
-                            {{order.product}} - {{order.quantity}}
+                        <div class="text-start">
+                            {{order.product}} - <span class="text-danger">{{order.quantity}}</span>
                         </div>
                         {% endfor %}
                     </td>        
                     <td>
                         <select name="status_order_{{checkout.id}}" required id="checkout">
-                            <option value="{{checkout.status_order}}" selected>{{checkout.status_order}}</option>
-                            <option value="in warehouse">in warehouse</option>
-                            <option value="delivering">delivering</option>
-                            <option value="completed">completed</option>
+                            <option value="{{checkout.status_order}}" selected class="text-success">{{checkout.status_order}}</option>
+                            <option value="in warehouse" class="text-warning">in warehouse</option>
+                            <option value="delivering" class="text-primary">delivering</option>
+                            <option value="completed" class="text-success">completed</option>
                         </select>
                     </td>
                     </tr>
@@ -108,7 +109,8 @@
         </div>
     </div>
 </form>
-{% else %}
+{% endif %}
+{% if page == 'not permission' %}
 <div class="col-12 d-flex justify-content-center text-danger" style="margin-top: 8rem;">
     <h3>You not have permission</h3>
 </div>

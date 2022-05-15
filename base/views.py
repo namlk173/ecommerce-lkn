@@ -1,46 +1,34 @@
+from unicodedata import category
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 from matplotlib.style import context
-from .models import Address, CheckOut, Employee, MobilePhone, User, Product, Book, Clothes, Category, OrderProduct, Cart, Function
-from .form import UserForm, MyUserCreationForm, MobilePhoneForm, BookForm, ClothesForm, AddressForm
+from .models import Address, CheckOut, Employee, MobilePhone, User, Product, Book, Clothes, Category, OrderProduct, Cart, Function, Comment
+from .form import UserForm, MyUserCreationForm, MobilePhoneForm, BookForm, ClothesForm, AddressForm, CommentForm
 
 
 
 # Create your views here.
 
 def Home(request):
-    # if request.user.is_staff:
-    #     print('admin')
-    # else:
-    #     print('Normal user')
     if request.user.is_authenticated:
         if request.user.functionality_of_user.name == 'Employee':
             request.user = Employee.objects.get(id=request.user.id)
             
     if request.user.is_authenticated:
-        cart = Cart.objects.get(user__id = request.user.id)
+        try:
+            cart = Cart.objects.get(user__id = request.user.id)
+        except:
+            cart = {}
     else:
         cart = {}
-    
+    categorys = Category.objects.all()
     q = request.GET.get('q') if request.GET.get('q') != None else ''
-    books = {}
-    phones = {}
-    clothes = {}
-    topics = Category.objects.all()
-    if(q=='Book'):
-        books = Book.objects.all()
-    elif(q=='Clothes'):
-        clothes = Clothes.objects.all()
-    elif(q=='Mobile Phone'):
-        phones = MobilePhone.objects.all()
-    else:
-        books = Book.objects.filter(name__icontains = q)
-        phones = MobilePhone.objects.filter(name__icontains = q)
-        clothes = Clothes.objects.filter(name__icontains = q)
-    context = {'books': books, 'phones':phones, 'clothes':clothes, 'topics':topics, 'cart': cart}
+    products = Product.objects.filter(Q(name__icontains=q) | Q(category__name__icontains = q))
+    products = sorted(products, key=lambda x: -(x.category.name == 'Book' or x.category.name == 'Clothes'))
+    context = {'products':products, 'categorys':categorys, 'cart': cart}
     return render(request, 'base/home.html', context)
 
 def Login(request):
@@ -113,6 +101,7 @@ def registerPage(request):
 # ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def Manager(request):
+
     page = ''
     try:
         user = Employee.objects.get(id = request.user.id)
@@ -123,10 +112,15 @@ def Manager(request):
     except:
         page = 'not permission'
 
-    checkouts = CheckOut.objects.all()
+    if request.user.is_staff:
+        page = 'Admin'      
+
+    
     q = request.GET.get('q') if request.GET.get('q') != None else ''
-    category = Category.objects.all()
+    categorys = Category.objects.all()
     products = Product.objects.filter(Q(name__icontains = q) | Q(category__name__icontains = q))
+    checkouts = CheckOut.objects.filter(Q(address_delivery__receiver__icontains = q))
+    checkouts = sorted(checkouts, key = lambda x: -(x.status_order == 'in warehouse'or  x.status_order == 'delivering'))
 
     if request.method == 'POST' and 'submit_category' in request.POST:
         selected = request.POST.get('category', None)
@@ -136,101 +130,134 @@ def Manager(request):
             checkout.status_order = request.POST.get(f"status_order_{checkout.id}")
             checkout.save()
         messages.error(request,'Udpate status orders successful')
-    context = {'category' : category, 'products': products, 'cart': {}, 'checkouts':checkouts, 'page': page}
+    context = {'categorys' : categorys, 'products': products, 'cart': {}, 'checkouts':checkouts, 'page': page}
     return render(request, 'base/manage.html', context)
 
 # ----------------------------------------------------------------------------------#
-# ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def DeleteProduct(request, pk):
-    
-    product = Product.objects.get(id= pk)
-    try:
-        product.delete()
-        messages.success(request, 'Delete product successful')
-        return redirect('manage-product')
-    except:
-        messages.error(request,'You can\'t delete this product')
+    if request.user.functionality_of_user.name == 'Admin' or request.user.functionality_of_user.name == 'Employee':
+        try:
+            product = Product.objects.get(id= pk)
+        except:
+            messages.error(request, 'This product is not exist')
+            return redirect('manage')
+        try:
+            product.delete()
+            messages.success(request, 'Delete product successful')
+            return redirect('manage')
+        except:
+            messages.error(request,'You can\'t delete this product')
 
-    return redirect('manage-product')
-
+        return redirect('manage')
+    else:
+        messages.error(request, 'You can\'t delete products')
+        return redirect('home')
 # ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def createProduct(request, CategoryId):
-    category = Category.objects.get(id=CategoryId)
-    if category.name == 'Mobile Phone':
-        form  = MobilePhoneForm()
-    elif category.name == 'Book':
-        form = BookForm()
-    elif category.name == 'Clothes':
-        form = ClothesForm()
+    if request.user.functionality_of_user.name == 'Admin' or request.user.functionality_of_user.name == 'Employee': 
+        category = Category.objects.get(id=CategoryId)
+        if category.name == 'Mobile Phone':
+            form  = MobilePhoneForm()
+        elif category.name == 'Book':
+            form = BookForm()
+        elif category.name == 'Clothes':
+            form = ClothesForm()
 
-    if request.method =='POST':
-        if category.name == 'Book':
-            form = BookForm(request.POST, request.FILES)
-        elif category.name == 'Mobile Phone':
-            form = MobilePhoneForm(request.POST, request.FILES)
-        elif category.name =='Clothes':
-            form = ClothesForm(request.POST, request.FILES)
-        if form.is_valid():
-            product = form.save(commit=False)
-            product.category = category
-            form.save()
-            messages.success(request, 'Create product successful')
-            return redirect('manage-product')
-        else:
-            messages.error(request, 'Some fields not vaild')
-    context = {'form' : form, 'product': category.name, 'cart': {}}
-    return render(request, 'base/add-product.html', context)
-
+        if request.method =='POST':
+            if category.name == 'Book':
+                form = BookForm(request.POST, request.FILES)
+            elif category.name == 'Mobile Phone':
+                form = MobilePhoneForm(request.POST, request.FILES)
+            elif category.name =='Clothes':
+                form = ClothesForm(request.POST, request.FILES)
+            if form.is_valid():
+                product = form.save(commit=False)
+                product.category = category
+                form.save()
+                messages.success(request, 'Create product successful')
+                return redirect('manage-product')
+            else:
+                messages.error(request, 'Some fields not vaild')
+        context = {'form' : form, 'product': category.name, 'cart': {}}
+        return render(request, 'base/add-product.html', context)
+    else:
+        messages.error(request, 'you can\'t create product')
+        return redirect('home')
 # ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def updateProduct(request, CategoryId, pk):
-    category = Category.objects.get(id=CategoryId)
-    product = Product.objects.get(id = pk)
-    if category.name == 'Book':
-        form = BookForm(instance=product)
-    elif category.name == 'Mobile Phone':
-        form = MobilePhoneForm(instance=product)
-    elif category.name =='Clothes':
-        form = ClothesForm(instance=product)
-
-    if request.method == 'POST':
+    if request.user.functionality_of_user.name == 'Admin' or request.user.functionality_of_user.name == 'Employee': 
+        try:
+            category = Category.objects.get(id=CategoryId)
+            product = Product.objects.get(id = pk)
+        except:
+            messages.error(request,'Product not exist!')
+            return redirect('manage')
         if category.name == 'Book':
-            form = BookForm(request.POST, request.FILES, instance=product)
+            form = BookForm(instance=product)
         elif category.name == 'Mobile Phone':
-            form = MobilePhoneForm(request.POST, request.FILES, instance=product)
-        elif category.name == 'Clothes':
-            form = ClothesForm(request.POST,request.FILES, instance=product)
-        
-        if form.is_valid():
-            product = form.save(commit=False)
-            product.category = category
-            product.save()
-            messages.success(request, 'Update product successful')
-            return redirect('manage-product')
-        else:
-            messages.error(request, 'Some fields not vaild')
-    context = {'category': category.name, 'form': form, 'cart': {}}
-    return render(request, 'base/update-product.html', context)
+            form = MobilePhoneForm(instance=product)
+        elif category.name =='Clothes':
+            form = ClothesForm(instance=product)
 
+        if request.method == 'POST':
+            if category.name == 'Book':
+                form = BookForm(request.POST, request.FILES, instance=product)
+            elif category.name == 'Mobile Phone':
+                form = MobilePhoneForm(request.POST, request.FILES, instance=product)
+            elif category.name == 'Clothes':
+                form = ClothesForm(request.POST,request.FILES, instance=product)
+            
+            if form.is_valid():
+                product = form.save(commit=False)
+                product.category = category
+                product.save()
+                messages.success(request, 'Update product successful')
+                return redirect('manage-product')
+            else:
+                messages.error(request, 'Some fields not vaild')
+        context = {'category': category.name, 'form': form, 'cart': {}}
+        return render(request, 'base/update-product.html', context)
+    else:
+        messages.error(request, 'you can\'t update product')
+        return redirect('home')
+        
 # ----------------------------------------------------------------------------------#
 def orderProduct(request, CategoryId, pk):
     if request.user.is_authenticated:
-        cart = Cart.objects.get(user__id = request.user.id)
+        try:
+            cart = Cart.objects.get(user__id = request.user.id)
+        except:
+            cart = {}
     else:
         cart = {}
+    product = None
+    form = None
     category = Category.objects.get(id= CategoryId)
     if category.name == 'Book':
-        product = Book.objects.get(id=pk)
-        form = BookForm(instance=product)
+        try:
+            product = Book.objects.get(id=pk)
+            form = BookForm(instance=product)
+        except:
+            messages.error(request, 'This product is not exist!')
     elif category.name == 'Mobile Phone':
-        product = MobilePhone.objects.get(id=pk)
-        form = MobilePhoneForm(instance=product)
+        try:
+            product = MobilePhone.objects.get(id=pk)
+            form = MobilePhoneForm(instance=product)
+        except:
+            messages.error(request, 'This product is not exist!')
     elif category.name =='Clothes':
-        product = Clothes.objects.get(id=pk)
-        form = ClothesForm(instance=product)
-
+        try:
+            product = Clothes.objects.get(id=pk)
+            form = ClothesForm(instance=product)
+        except:
+            messages.error(request, 'This product is not exist!')
+    try:
+        comments = Comment.objects.filter(product = product)
+    except:
+        comments = None
     if request.method == 'POST':
         quantity = request.POST.get('quantity')
         if not request.user.is_authenticated:
@@ -259,8 +286,37 @@ def orderProduct(request, CategoryId, pk):
 
             messages.success(request, 'Added product to your cart')
         
-    context = {'product':product, 'category':category.name, "form":form, 'cart': cart}
+    context = {'product':product, 'category':category.name, "form":form, 'cart': cart, "comments": comments}
+    
     return render(request, 'base/order-product.html', context)
+
+# ----------------------------------------------------------------------------------#
+def buyNow(request, pk):
+    try:
+        product = Product.objects.get(id=pk)
+        orderProduct = OrderProduct.objects.create(
+            user = request.user,
+            product = product,
+            quantity = 1,
+        )
+        
+        cart = Cart.objects.get(user_id = request.user.id)
+        orderOfUsers = cart.order.all()
+
+        flag = False
+        for orderOfUser in orderOfUsers:
+            if orderOfUser.product.id == product.id:
+                orderOfUser.quantity = orderOfUser.quantity + 1
+                orderOfUser.save()
+                flag = True
+
+        if flag == False:
+            cart.order.add(orderProduct)
+    except:
+        messages.error(request, 'This product in not exist')
+        return redirect('home')
+    messages.success(request, 'Added product to your cart')
+    return redirect('home')
 
 # ----------------------------------------------------------------------------------#
 def manageOrder(request):
@@ -271,8 +327,10 @@ def manageOrder(request):
 # ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def cart(request):
-    
-    cart = Cart.objects.get(user__id = request.user.id)
+    try:
+        cart = Cart.objects.get(user__id = request.user.id)
+    except:
+        cart = {}
     address = Address.objects.filter(Q(user__id = request.user.id) & Q(boolean =True))
     if request.method == 'POST':
         for order in cart.order.all():
@@ -282,26 +340,22 @@ def cart(request):
 
         if address:
             checkbox_order_id = request.POST.getlist('checkbox_products[]') 
-            try:
-                if len(checkbox_order_id)!=0:
-                    
-                    check_out = CheckOut.objects.create(
-                        user = request.user,
-                        address_delivery = address[0]
-                    )
+            if checkbox_order_id:
+                check_out = CheckOut.objects.create(
+                    user = request.user,
+                    address_delivery = address[0]
+                )
 
-                    for id_order_selected in checkbox_order_id:
-                        try:
-                            order_selected = cart.order.get(id=int(id_order_selected))
-                            check_out.order_Items.add(order_selected)
-                            cart.order.remove(order_selected)
-                            messages.success(request, 'order successful')
-                        except:
-                            messages.error(request, 'Have an error1')
-                else:
-                    messages.error(request, 'You have to selected some order to buy!')
-            except:
-                messages.error(request, 'have an error2')
+                for id_order_selected in checkbox_order_id:
+                    try:
+                        order_selected = cart.order.get(id=int(id_order_selected))
+                        check_out.order_Items.add(order_selected)
+                        cart.order.remove(order_selected)
+                        messages.success(request, 'order successful')
+                    except:
+                        messages.error(request, 'Cant add order to check out')
+            else:
+                messages.error(request, 'You have to selected some order to buy!')
         else:
             messages.error(request, 'Please select an address for delivery')
 
@@ -309,11 +363,12 @@ def cart(request):
 
     return render(request, 'base/cart.html', context)
 
+# ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
-def deleteOrder(request, cartId, orderId):
+def deleteOrder(request, orderId):
 
     try:
-        cart = Cart.objects.get(id = cartId)
+        cart = Cart.objects.get(user = request.user)
         order = cart.order.get(id = orderId)
         cart.order.remove(order)
         messages.success(request, 'Delete order successful'); 
@@ -324,7 +379,10 @@ def deleteOrder(request, cartId, orderId):
 # ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def chooseAddressDelivery(request):
-    cart = Cart.objects.get(user__id = request.user.id) 
+    try:
+        cart = Cart.objects.get(user__id = request.user.id) 
+    except:
+        cart = {}
     list_address = Address.objects.filter(Q(user = request.user))
     list_address = sorted(list_address, key=lambda x: -(x.boolean))
     if request.method == 'POST':
@@ -396,3 +454,71 @@ def deleteAddressDelivery(request, pk):
     context = {}
     return render(request, 'base/choose-address-delivery.html', context)
 
+
+@login_required(login_url='login')
+def viewOrder(request):
+    checkouts = CheckOut.objects.filter(Q(user = request.user) & (Q(status_order = 'in warehouse') | Q(status_order = 'delivering')))
+    checkouts = sorted(checkouts, key=lambda x: -(x.status_order =='in warehouse'))
+    try:
+        cart = Cart.objects.get(user = request.user)
+    except:
+        cart = {}
+    ordereds = CheckOut.objects.filter(Q(user = request.user) and Q(status_order = 'completed'))
+
+    context = {'checkouts' : checkouts, 'cart': cart, 'ordereds': ordereds}
+    return render(request, 'base/view-order.html', context)
+
+
+def write_comment(request, categoryID, productID):
+    permission = "no"
+    try:
+        cart = Cart.objects.get(user=request.user)
+    except:
+        cart = {}
+
+    category = Category.objects.get(id=categoryID)
+    if category.name == "Mobile Phone":
+        try:
+            product = MobilePhone.objects.get(id=productID)
+        except:
+            product = None
+            messages.error(request, 'This product is not exist!')
+    elif category.name == "Clothes":
+        try:
+            product = Clothes.objects.get(id=productID)
+        except:
+            product = None
+            messages.error(request, 'This product is not exist!')
+    elif category.name == "Book":
+        try:
+            product = Book.objects.get(id=productID)
+        except:
+            product = None
+            messages.error(request, 'This product is not exist!')
+    checkouts = CheckOut.objects.filter(Q(user = request.user) & Q(status_order = 'completed'))
+    try:
+        for checkout in checkouts:
+            orders = checkout.order_Items.all()
+            for order in orders:
+                if product.id == order.product.id:
+                    permission = 'yes'
+                    break
+            if permission == 'yes':
+                break
+    except:
+        pass
+    form = CommentForm()
+    if request.method == 'POST':
+        try:
+            form = CommentForm(request.POST)
+            comment = form.save(commit=False)
+            comment.user = request.user
+            comment.product = product
+            comment.save()
+            messages.success(request, 'Comment successful')
+            return redirect('view-order')
+        except:
+            messages.error(request, 'Error') 
+
+    context = {'product': product, 'form': form, 'permission' : permission, 'cart': cart}
+    return render(request, 'base/write-comment.html', context)

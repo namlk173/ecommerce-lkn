@@ -3,6 +3,7 @@
 
 {% block content %}
 
+{% if product %}
 <div class="container-fluid" style="background-color: #f5f5fa; padding-top: 2rem;">
     <div class="container bg-white" style="padding: 1rem;">
         <div class="row">
@@ -44,6 +45,7 @@
                         <span class="price-product">{{product.price}} đ</span>
                     </div>
                 </div>
+                {% if request.user.functionality_of_user.name == 'Customer' %}
                 <div class="row d-flex justify-content-start quantity-product-choice">
                     <div class="col-7">
                         <span>Quantity</span>
@@ -62,6 +64,7 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -84,6 +87,7 @@
             </div>
         </div>
     </div>
+
     <div class="container bg-white" style=" margin-top: 2rem; padding-bottom: 1rem;">
         <div class="title-product">Mô Tả Sản Phẩm</div>
         <div class="row">
@@ -93,8 +97,22 @@
             <div class="decription-product">{{form.description.value|linebreaks}}</div>
         </div>
     </div>
-
+    <div class="container bg-white" style=" margin-top: 2rem; padding-bottom: 1rem;">
+        <div class="title-product m-4 pt-2">Nhận xét từ khách hàng đã mua sản phẩm</div>
+        {% for comment in comments %}
+        <div class="row p-2">
+            <div class="col-1 text-end"><img src="{{request.user.avatar.url}}" width="50%" class="rounded"></div>
+            <div class="col-4 text-start">
+                <div class="fs-08 mb-2">@{{comment.user.username}}</div>
+                <div class="fs-08 mb-2">{{comment.created|timesince}} ago</div>
+                <div>{{comment.content}}</div>
+            </div>
+        </div>
+        <hr style="width: 90%; height: 1px; color: #ccc;" >
+        {% endfor %}
+    </div>
 </div>
+{% endif %}
 {% for message in messages %}
 <div class="alert alert-success alert-position" role="alert" id="alert">
     {{message}}

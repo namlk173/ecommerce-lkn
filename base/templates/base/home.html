@@ -4,10 +4,10 @@
 {% load l10n %}
 {% block content %}
     <!-- TOPIC -->
-    <div class="d-flex justify-content-evenly topic-item">
+    <div class="d-flex justify-content-evenly topic-item p-2">
         <a class="nav-link" href="{% url 'home' %}"><div class="p-1 font-color2">All</div></a>
-        {% for topic in topics %}
-        <a class="nav-link" href="{% url 'home' %}?q={{topic}}"><div class="p-1 font-color2">{{topic}}</div></a>
+        {% for category in categorys %}
+        <a class="nav-link" href="{% url 'home' %}?q={{category}}"><div class="p-1 font-color2">{{category}}</div></a>
         {% endfor %}
     </div>
     <!-- SLIDE SHOW -->
@@ -51,22 +51,20 @@
     <!-- ITEMS -->
     <div class="container-fluid" style="background-color: #f5f5fa; padding-top: 20px;">   
         <div class="container" style="background-color: #ffffff;">
-
-            {% if clothes %}
-            <div style="padding-top: 20px; color: #ff6219; font-size: 2rem; font-weight: 700;">Clothes</div>
+            <div style="padding-top: 20px; color: #ff6219; font-size: 2rem; font-weight: 700;">Sản phẩm mới về</div>
             <hr style="height: 2px;color:#ccc; width: 100%;">
             <div class="row">
-                {% for clothe in clothes %}
+                {% for product in products %}
                 <div class="col-lg-2 col-md-3 col-sm-4 col-6 product" style="padding-top: 10px;">
-                    <a class="nav-link" href="{% url 'order-product' clothe.category.id clothe.id %}">
+                    <a class="nav-link" href="{% url 'order-product' product.category.id product.id %}">
                         <div class="" style="width: 100%;">
-                            <img src="{{clothe.image.url}}" class="card-img-top" alt="...">
+                            <img src="{{product.image.url}}" class="card-img-top" alt="...">
                             <hr style="height: 2px; color: #ccc; width: 70%;">
                             <div class="" style="margin-top: 0;">
-                                <p class="card-text text-dark book-name-dot book-name-dot-100" style="font-size: 0.8rem;">{{clothe.name}}</p>
-                                <p class="card-text fw-bold" style="font-size: 0.8rem; color: #EE5A24;">Price: {{clothe.price}}đ </p>
+                                <p class="card-text text-dark book-name-dot book-name-dot-100" style="font-size: 0.8rem;">{{product.name}}</p>
+                                <p class="card-text fw-bold" style="font-size: 0.8rem; color: #EE5A24;">Price: {{product.price}}đ </p>
                                 <div class="d-flex flex-column justify-content-center align-items-center">   
-                                    <a href="" class="pb-4"><div class="btn btn-danger btn-sm ">Buy Now</div></a>
+                                    <a href="{% url 'buy-now' product.id %}" class="pb-4"><div class="btn btn-danger btn-sm ">Buy Now</div></a>
                                 </div>
                             </div>
                         </div>
@@ -74,57 +72,6 @@
                 </div>
                 {% endfor %}
             </div>
-            {% endif %}
-
-            {% if phones %}
-            <div style="padding-top: 20px; color: #ff6219; font-size: 2rem; font-weight: 700;">Phones</div>
-            <hr style="height: 2px;color:#ccc; width: 100%;">
-            <div class="row">
-                {% for phone in phones %}
-                <div class="col-lg-2 col-md-3 col-sm-4 col-6 product" style="padding-top: 10px;">
-                    <a class="nav-link" href="{% url 'order-product' phone.category.id phone.id %}">
-                        <div class="" style="width: 100%;">
-                            <img src="{{phone.image.url}}" class="card-img-top" alt="...">
-                            <hr style="height: 2px; color: #ccc; width: 70%;">
-                            <div class="" style="margin-top: 0;">
-                                <p class="card-text text-dark book-name-dot book-name-dot-100" style="font-size: 0.8rem;">{{phone.name}}</p>
-                                <p class="card-text fw-bold" style="font-size: 0.8rem; color: #EE5A24;">Price: {{phone.price}}đ </p>
-                                <div class="d-flex flex-column justify-content-center align-items-center">   
-                                    <a href="" class="pb-4"><div class="btn btn-danger btn-sm ">Buy Now</div></a>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-
-
-            {% if books %}
-            <div style="padding-top: 20px; color: #ff6219; font-size: 2rem; font-weight: 700;">Books</div>
-            <hr style="height: 2px;color:#ccc; width: 100%;">
-            <div class="row">
-                {% for book in books %}
-                <div class="col-lg-2 col-md-3 col-sm-4 col-6 product" style="padding-top: 10px;">
-                    <a class="nav-link" href="{% url 'order-product' book.category.id book.id %}">
-                        <div class="" style="width: 100%;">
-                            <img src="{{book.image.url}}" class="card-img-top" alt="..." >
-                            <hr style="height: 2px; color: #ccc; width: 70%;">
-                            <div class="" style="margin-top: 0;">
-                                <p class="card-text text-dark book-name-dot book-name-dot-100" style="font-size: 0.8rem;">{{book.name}}</p>
-                                <p class="card-text fw-bold" style="font-size: 0.8rem; color: #EE5A24;">Price: {{book.price}}đ </p>
-                                <div class="d-flex flex-column justify-content-center align-items-center">   
-                                    <a href="" class="pb-4"><div class="btn btn-danger btn-sm ">Buy Now</div></a>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-
         </div>
     </div>
     {% for message in messages %}

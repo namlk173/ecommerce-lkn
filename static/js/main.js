@@ -93,14 +93,7 @@
     }
 
     // Tạo thứ tự cho danh sách sản phẩm trong mục quản lý sản phẩm
-    function generation_sn_for_product(){
-        var sn = document.getElementsByClassName('sn');
-        for(var i=0; i<sn.length; i++){
-            sn[i].innerHTML = i + 1;
-        }
-    }
 
-    generation_sn_for_product();
 
     // đánh dấu tất cả check box và loại bỏ tất cả các check box và thay đổi giá trị liên quan
     function checkbox_order_cart_for_all(){

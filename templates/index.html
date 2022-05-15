@@ -18,7 +18,25 @@
 
     <title>Nhóm 15</title>
     <style>
-       
+        .account{
+            position: relative;
+            cursor: pointer;
+            padding-bottom: 2rem;
+        }
+       .toogle-account{
+            top: 3em;
+            position: absolute;
+            width: 16em;
+            background-color: white;
+            color: #ccc;
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+       }
+       .padding-toogle{
+            position: absolute;
+            width: 9rem;
+            height: 2rem;
+            top: 1rem;
+       }
     </style>
 </head>
 <body>
@@ -32,6 +50,23 @@
 
 
     <script>
+        function generation_sn_for_product(){
+            var sn = document.getElementsByClassName('sn1');
+            for(var i=0; i<sn.length; i++){
+                sn[i].innerHTML = i + 1;
+            }
+            var sn = document.getElementsByClassName('sn2');
+            for(var i=0; i<sn.length; i++){
+                sn[i].innerHTML = i + 1;
+            }
+        }
+        generation_sn_for_product();
+        $(document).ready(function(){
+            $('#toogle-account').hide();
+            $('#account').click(function(){
+                $('#toogle-account').toggle(100);
+            });
+        });
     </script>
     <script src="{% static 'js/main.js' %}"></script>
 </body>

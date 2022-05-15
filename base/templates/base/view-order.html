@@ -1,0 +1,160 @@
+{% extends 'index.html' %}
+{% load static %}
+{% block content %}
+
+{% if request.user.functionality_of_user.name == 'Customer' %}
+
+<div class="container-fluid" style="background-color: #f5f5fa;">
+    <div class="Cart-title">Your order</div>
+        <div class="container">
+            <div class="col-12">
+                <div class="row text-center p-3 rounded bg-white mb-3" >
+                    <div class="col-5 text-start">
+                        All ({{ checkouts|length }}) ordering
+                    </div>
+                    <div class="col-1">Total bill</div>
+                    <div class="col-1">SDT receiver</div>
+                    <div class="col-2">Receiver address </div>
+                    <div class="col-2">Receiver</div>
+                    <div class="col-1">Status order</div>
+                </div>
+                
+                {% for checkout in checkouts %}
+                <div class="row rounded bg-white text-center mb-3 p-3 border border-secondary">
+                    
+                    <div class="col-5">
+                        {% for order in checkout.order_Items.all %}
+                        <div class="row">
+                       
+                            <div class="col-2 text-start mb-2">
+                                <a href="{% url 'order-product' order.product.category.id order.product.id %}">
+                                <div class="card border border-primary">
+                                    <img class="card-img-top" src="{{ order.product.image.url }}" alt="" style="width: 100%;">
+                                </div>
+                                </a>
+                            </div>
+                            <div class="col-7 name-product-cart">
+                                <a href="{% url 'order-product' order.product.category.id order.product.id %}" class="text-dark fs-08">
+                                {{order.product.name}} 
+                                </a>
+                            </div>
+                            <div class="col-3 d-flex justify-content-center align-items-center fs-08 text-danger">
+                                {{order.quantity}} product - {{order.product.price}}đ/product 
+                            </div>
+                        </div>
+
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="col-1  d-flex align-items-center justify-content-center fs-08 text-danger">
+                        {{checkout.total_bill}} đ
+                    </div>
+
+                    <div class="col-1  d-flex align-items-center justify-content-center fs-08">
+                        {{checkout.address_delivery.phone_number_receiver}}
+                    </div>
+
+                    <div class="col-2 d-flex align-items-center justify-content-center fs-08">
+                        {{checkout.address_delivery.exact_address}}, {{checkout.address_delivery.ward}}, {{checkout.address_delivery.district}}, {{checkout.address_delivery.province}}, {{checkout.address_delivery.country}}
+                    </div>
+
+                    <div class="col-2  d-flex align-items-center justify-content-center fs-08">
+                        {{checkout.address_delivery.receiver}}
+                    </div>
+
+                    <div class="col-1 d-flex align-items-center justify-content-center text-success">
+                        {{checkout.status_order}}
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div> 
+</div>
+
+<div class="container-fluid" style="background-color: #f5f5fa;">
+    <div class="Cart-title">Your order completed</div>
+        <div class="container">
+            <div class="col-12">
+                <div class="row text-center p-3 rounded bg-white mb-3" >
+                    <div class="col-5 text-start">
+                        All ({{ ordereds|length }}) order completed
+                    </div>
+                    <div class="col-1">Total bill</div>
+                    <div class="col-1">SDT receiver</div>
+                    <div class="col-2">Receiver address </div>
+                    <div class="col-2">Receiver</div>
+                    <div class="col-1">Status order</div>
+                </div>
+                
+                {% for ordered in ordereds %}
+                <div class="row rounded bg-white text-center mb-3 p-3 border border-secondary">
+                    
+                    <div class="col-5">
+                        {% for order in ordered.order_Items.all %}
+                        <div class="row">
+                       
+                            <div class="col-2 text-start mb-2">
+                                <a href="{% url 'order-product' order.product.category.id order.product.id %}">
+                                <div class="card border border-primary">
+                                    <img class="card-img-top" src="{{ order.product.image.url }}" alt="" style="width: 100%;">
+                                </div>
+                                </a>
+                            </div>
+                            <div class="col-7 mb-3">
+                                <div class="name-product-cart mb-2">
+                                    <a href="{% url 'order-product' order.product.category.id order.product.id %}" class="text-dark fs-08">
+                                        {{order.product.name}} 
+                                    </a>                                   
+                                </div>
+                                <div>
+                                    <a href="{% url 'write-comment' order.product.category.id  order.product.id%}" class="btn btn-sm btn-outline-primary">Viết nhận xét</a>
+                                </div>
+                            </div>
+                            <div class="col-3 d-flex justify-content-center align-items-center fs-08 text-danger">
+                                {{order.quantity}} product - {{order.product.price}}/product 
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div class="col-1  d-flex align-items-center justify-content-center fs-08 text-danger">
+                        {{ ordered.total_bill }} đ
+                    </div>
+
+                    <div class="col-1  d-flex align-items-center justify-content-center fs-08">
+                        {{ordered.address_delivery.phone_number_receiver}}
+                    </div>
+
+                    <div class="col-2 d-flex align-items-center justify-content-center fs-08">
+                        {{ordered.address_delivery.exact_address}}, {{ordered.address_delivery.ward}}, {{ordered.address_delivery.district}}, {{ordered.address_delivery.province}}, {{ordered.address_delivery.country}}
+                    </div>
+
+                    <div class="col-2  d-flex align-items-center justify-content-center fs-08">
+                        {{ordered.address_delivery.receiver}}
+                    </div>
+
+                    <div class="col-1 d-flex align-items-center justify-content-center text-success">
+                        {{ordered.status_order}}
+                    </div>
+
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div> 
+</div>
+{% else %}
+<div class="col-12 d-flex justify-content-center text-danger" style="margin-top: 8rem;">
+    <h3>You are use employee account or admin account, you should use customer account to order</h3>
+</div>
+{% endif %}
+{% for message in messages %}
+<div class="alert alert-success alert-position" role="alert" id="alert">
+    {{message}}
+    <span class="btn-custom"><i class="fa-solid fa-xmark"></i></span>
+</div>
+{% endfor %}
+
+{% endblock %}

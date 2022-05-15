@@ -1,0 +1,88 @@
+{% extends 'index.html' %}
+
+{% load static %}
+
+{% block content %}
+
+
+<div class="container-fluid" style="background-color: #f5f5fa; padding-top: 2rem;">
+    <div class="container bg-white" style="padding: 1rem;">
+    {% if product %}
+        {% if permission == 'yes' %}
+        <div class="row">
+            <div class="col-lg-4 col-sm-6 col-md-5" style="border-right: 1px solid #dadada;">
+                <div class="card" style="width: 100%;">
+                    <img class="card-img-top" src="{{product.image.url}}" alt="">
+                </div>
+            </div>
+            <div class="col-lg-8 col-sm-6 col-md-7">
+                <div class="row d-flex justify-content-start">
+                    {% if product.category.name == 'Mobile Phone' %}
+                    <div>
+                        <span><strong class="fs-08">Brand: </strong></span> 
+                        <span style="color: #3498db; font-weight: bold;" class="fs-08">{{product.brand}}</span>
+                        <span style="font-weight: bold;" class="fs-08"> | Gen: {{product.gen}}</span>
+                    </div>
+                    {% elif product.category.name == 'Clothes' %}
+                    <div>
+                        <span><strong class="fs-08">Brand: </strong></span> 
+                        <span style="color: #3498db; font-weight: bold;" class="fs-08">{{product.brand}}</span>
+                        <span style="font-weight: bold;" class="fs-08"> | Type: {{product.type}}</span>
+                    </div>
+                    {% elif product.category.name == 'Book' %}
+                    <div>
+                        <span><strong class="fs-08">Book category: </strong></span> 
+                        <span style="color: #3498db; font-weight: bold;" class="fs-08">{{product.book_category}}</span>
+                        <span style="font-weight: bold;" class="fs-08"> | Author: {{product.author}}</span>
+                        <span style="font-weight: bold;" class="fs-08"> | Number page: {{product.number_page}}</span>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="row d-flex justify-content-start">
+                    <div class="name-product-head">
+                        <span class="fs-12">{{product.name}}</span>
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-start">
+                    <div class="col-lg-7 col-sm-12 price-place" style="background-color: #fafafa;">
+                        <span class="price-product">{{product.price}} đ</span>
+                    </div>
+                </div>
+                <div class="row mt-5 p-2 text-primary">
+                    Product Reviews
+                </div>
+                <form action="" method="post">
+                <div class="mt-2 p-2 row">
+                    {% csrf_token %}
+                    <div>
+                        {% for field in form %}
+                        {{field}}
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="row d-flex justify-content-center">
+                    <div class="col-2">
+                        <input type="submit" name="comment" id="comment" value="submit" class="btn btn-primary">
+                    </div>
+                </div>
+                </form>
+
+            </div>
+        </div>
+        {% elif permission == 'no' %}
+        <div class="text-danger">
+            You have not purchased this product so you cannot comment on this product! You can buy this product and go back to comment.
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% for message in messages %}
+<div class="alert alert-success alert-position" role="alert" id="alert">
+    {{message}}
+    <span class="btn-custom"><i class="fa-solid fa-xmark"></i></span>
+</div>
+{% endfor %}
+
+{% endblock %}

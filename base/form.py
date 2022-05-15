@@ -2,7 +2,7 @@ from attr import fields
 from django import forms
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm
-from .models import Clothes, Customer, MobilePhone, Product, User, Book, Address, Employee
+from .models import Clothes, Customer, MobilePhone, Product, User, Book, Address, Employee, Comment
 
 
 class MyUserCreationForm(UserCreationForm):
@@ -17,6 +17,13 @@ class MyUserCreationForm(UserCreationForm):
         self.fields['password1'].widget.attrs['class'] = 'form-control  bg-dark text-white form-register'
         self.fields['password2'].widget.attrs['class'] = 'form-control  bg-dark text-white form-register'
 
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['content']
+    def __init__(self, *args, **kwargs):
+        super(CommentForm, self).__init__(*args, **kwargs)
+        self.fields['content'].widget.attrs['class']  = 'decription-product form-control'
 
 class BookForm(forms.ModelForm):
     class Meta:

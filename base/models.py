@@ -1,3 +1,4 @@
+from enum import auto
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 # Create your models here.
@@ -174,7 +175,7 @@ class Cart(models.Model):
    
     def total_price(self):
         total = 0
-        for order in self.order:
+        for order in self.order.all():
             total += order.total_price()
         return total
 
@@ -207,9 +208,22 @@ class CheckOut(models.Model):
     
     def total_bill(self):
         total = 0
-        for order in self.order_Items:
-            total += order.total_price
+        for order in self.order_Items.all():
+            total = total + order.total_price()
         return total
 
     def __str__(self):
         return f"Check out for {self.user}"
+
+# ----------------------------------------------------------------------------------------- #
+class Comment(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField(max_length=200)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created']
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.product.name}"
