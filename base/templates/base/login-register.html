@@ -1,6 +1,7 @@
 {% extends 'index.html' %}
-
+  
 {% block content %}
+
   {% if page == 'login' %}
   <div class="container-fluid vh-100" style="background: #ccc">
       <div class="row d-flex align-items-center justify-content-center h-100">
@@ -17,7 +18,7 @@
                               {% csrf_token %}
                               <input type="text" placeholder="Email" name="email" class="form-control  bg-dark text-white"  style="max-width: 60vh; margin-top:1vh;" >
                               <input type="password" placeholder="Password" name="password" class="form-control  bg-dark text-white" style="max-width: 60vh; margin-top: 3vh;">
-                              <button type="submit" class="btn btn-outline-light px-5 bg-dark text-white mt-4 mb-5">LOGIN</button>
+                              <button type="submit" class="btn btn-outline-light px-5 bg-dark text-white mt-4 mb-5" name="login">LOGIN</button>
                           </form>
                       </div>
                       <p>Don't have an account? <a href="{% url 'register' %}" class="text-white-50 fw-bold" style="text-decoration: none;">Sign Up</a></p>
@@ -39,15 +40,12 @@
                       <p style=" color: #ff7675;">{{message}}</p>
                       {% endfor %}
                       <div class="form-outline form-white mb-4">
-                        <form class="d-flex flex-column align-items-center" action="" method="POST">
-                          {% csrf_token %}
-                          {% for field in form %}
-                          <label for="register" style="margin-top: 10px;">{{field.label}}</label>
-                            {{field}}
-                          {% endfor %}
-                          <button type="submit" class="btn btn-outline-light px-4 bg-dark text-white mt-4">Register</button>
+                        <form action="" method="POST" class="d-flex flex-column align-items-center">
+                            {% csrf_token %}
+                            {{register_form}}
+                            <button type="submit" class="btn btn-outline-light px-5 bg-dark text-white mt-4 mb-5" name="register">Register</button>
                         </form>
-                      </div>
+                    </div>
                       <p>Already have an account? <a href="{% url 'login' %}" class="text-white-50 fw-bold" style="text-decoration: none;">LOGIN</a></p>
                   </div>
               </div>

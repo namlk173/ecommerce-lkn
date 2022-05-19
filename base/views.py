@@ -1,3 +1,4 @@
+import email
 import random
 import string
 from xmlrpc.client import boolean
@@ -70,36 +71,22 @@ def Logout(request):
 def registerPage(request):
     form = MyUserCreationForm()
     funtionality = Function.objects.get(name = 'Customer')
-    if request.method == 'POST':
+    if request.method == 'POST' and 'register' in request.POST: 
         form = MyUserCreationForm(request.POST)
-        try:
-            emailExist = User.objects.get(email= request.POST['email'].lower())
-            messages.error(request, 'Email already exists, try another')
-        except:
-            pass
-
-        try:
-            userName = User.objects.get(username = request.POST['username'].lower())
-            messages.error(request, 'Username already exists, try another')
-        except:
-            pass
-
         if form.is_valid():
             user = form.save(commit=False)
-            user.username = user.username.lower()
-            user.email = user.email.lower()
             user.functionality_of_user = funtionality
             user.save()
             login(request, user)
-            Cart.objects.create(
-                user = request.user
+            cart = Cart.objects.create(
+                user = user,
             )
-            messages.success(request,'Register successful')
+            cart.save()
+            messages.success(request,"Register account successful")
             return redirect('home')
-        else:
-            messages.error(request, 'Name or Username must be not contain space, special characters. Password and password confirm must be same and more than 8 character')
-
-    return render(request, 'base/login-register.html', {'form': form, 'cart': {}})
+        messages.error(request, 'Unsuccessful registration. Invalid information.')
+    form = MyUserCreationForm()
+    return render(request, 'base/login-register.html',  {'cart': {}, 'register_form': form})
 
 # ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
