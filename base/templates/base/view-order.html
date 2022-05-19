@@ -3,12 +3,11 @@
 {% block content %}
 
 {% if request.user.functionality_of_user.name == 'Customer' %}
-
 <div class="container-fluid" style="background-color: #f5f5fa;">
     <div class="Cart-title">Your order</div>
         <div class="container">
             <div class="col-12">
-                <div class="row text-center p-3 rounded bg-white mb-3" >
+                <div class="row text-center p-3 rounded bg-white mb-3 shadow-lg" >
                     <div class="col-5 text-start">
                         All ({{ checkouts|length }}) ordering
                     </div>
@@ -19,11 +18,11 @@
                     <div class="col-1">Status order</div>
                 </div>
                 
-                {% for checkout in checkouts %}
-                <div class="row rounded bg-white text-center mb-3 p-3 border border-secondary">
+                {% for checkout in checkouts_not_completed %}
+                <div class="row rounded bg-white text-center mb-3 p-3 shadow-lg">
                     
                     <div class="col-5">
-                        {% for order in checkout.order_Items.all %}
+                        {% for order in checkout.order.all %}
                         <div class="row">
                        
                             <div class="col-2 text-start mb-2">
@@ -46,8 +45,17 @@
                         {% endfor %}
                     </div>
                     
-                    <div class="col-1  d-flex align-items-center justify-content-center fs-08 text-danger">
-                        {{checkout.total_bill}} đ
+                    <div class="col-1  d-flex flex-column align-items-center justify-content-center  text-danger">
+                        <div class="fs-08">
+                            {% if checkout.payment_or_shipping == 'payment' %}
+                            0 đ
+                            {% else %}
+                            {{ checkout.total_bill }} đ
+                            {% endif %}
+                        </div>
+                        <div class="fs-08">
+                            {{ checkout.payment_or_shipping }}
+                        </div>
                     </div>
 
                     <div class="col-1  d-flex align-items-center justify-content-center fs-08">
@@ -77,9 +85,9 @@
     <div class="Cart-title">Your order completed</div>
         <div class="container">
             <div class="col-12">
-                <div class="row text-center p-3 rounded bg-white mb-3" >
+                <div class="row text-center p-3 rounded bg-white mb-3 shadow-lg" >
                     <div class="col-5 text-start">
-                        All ({{ ordereds|length }}) order completed
+                        All ({{ checkouts_completed|length }}) order completed
                     </div>
                     <div class="col-1">Total bill</div>
                     <div class="col-1">SDT receiver</div>
@@ -88,11 +96,11 @@
                     <div class="col-1">Status order</div>
                 </div>
                 
-                {% for ordered in ordereds %}
-                <div class="row rounded bg-white text-center mb-3 p-3 border border-secondary">
+                {% for checkout in checkouts_completed %}
+                <div class="row rounded bg-white text-center mb-3 p-3 shadow-lg">
                     
                     <div class="col-5">
-                        {% for order in ordered.order_Items.all %}
+                        {% for order in checkout.order.all %}
                         <div class="row">
                        
                             <div class="col-2 text-start mb-2">
@@ -119,24 +127,33 @@
                         {% endfor %}
                     </div>
                     
-                    <div class="col-1  d-flex align-items-center justify-content-center fs-08 text-danger">
-                        {{ ordered.total_bill }} đ
+                    <div class="col-1  d-flex flex-column align-items-center justify-content-center text-danger">
+                        <div class="fs-08">
+                            {% if checkout.payment_or_shipping == 'payment' %}
+                            0 đ
+                            {% else %}
+                            {{ checkout.total_bill }} đ
+                            {% endif %}
+                        </div>
+                        <div class="fs-08">
+                            {{ checkout.payment_or_shipping }}
+                        </div>
                     </div>
 
                     <div class="col-1  d-flex align-items-center justify-content-center fs-08">
-                        {{ordered.address_delivery.phone_number_receiver}}
+                        {{checkout.address_delivery.phone_number_receiver}}
                     </div>
 
                     <div class="col-2 d-flex align-items-center justify-content-center fs-08">
-                        {{ordered.address_delivery.exact_address}}, {{ordered.address_delivery.ward}}, {{ordered.address_delivery.district}}, {{ordered.address_delivery.province}}, {{ordered.address_delivery.country}}
+                        {{checkout.address_delivery.exact_address}}, {{checkout.address_delivery.ward}}, {{checkout.address_delivery.district}}, {{checkout.address_delivery.province}}, {{checkout.address_delivery.country}}
                     </div>
 
                     <div class="col-2  d-flex align-items-center justify-content-center fs-08">
-                        {{ordered.address_delivery.receiver}}
+                        {{checkout.address_delivery.receiver}}
                     </div>
 
                     <div class="col-1 d-flex align-items-center justify-content-center text-success">
-                        {{ordered.status_order}}
+                        {{checkout.status_order}}
                     </div>
 
                 </div>

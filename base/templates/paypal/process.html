@@ -1,0 +1,41 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    {% if form.amount.value and form.quantity.value %}
+    <div class="container-fluid position-background-payment">
+        <div class="col-4 bg-primary bg-gradient rounded position-payment-form p-3 shadow-lg">
+            <div class="row d-flex justify-content-center p-3 title-payment">
+                Payment with paypal
+            </div>
+            <div class="row d-flex justify-content-center">
+                <div class="col-4">
+                    <div class="">
+                        <a href="{% url 'payment-cancel' %}" class="btn btn-warning btn-cancel-payment rounded-pill"><i class="fa-solid fa-arrow-left"></i> Cancel</a>
+                    </div>
+                </div>
+                <div class="col-4">
+                    {{form.render}}
+                </div>
+            </div>        
+        </div>
+    </div>
+    {% else %}
+    <div class="container-fluid position-background-payment">
+        <div class="col-4 bg-primary bg-gradient rounded position-payment-form p-3 shadow-lg">
+            <div class="row d-flex justify-content-center p-3 title-payment">
+                Nothings for payment
+            </div>
+            <div class="row d-flex justify-content-center">
+                <div class="col-12">
+                    <div class="text-center">
+                        <a href="{% url 'home' %}" class="text-white"><i class="fa-solid fa-arrow-left"></i> Continue shopping</a>
+                    </div>
+                </div>
+                <div class="col-4">
+                    
+                </div>
+            </div>        
+        </div>
+    </div>
+    {% endif %}
+{% endblock %}

@@ -156,6 +156,7 @@ class OrderProduct(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=0)
+    checked = models.BooleanField(default=False)
     updated = models.DateTimeField(auto_now= True)
     created = models.DateTimeField(auto_now_add=True)
     
@@ -163,7 +164,7 @@ class OrderProduct(models.Model):
         ordering = ['-created']
     
     def __str__(self):
-        return f"{self.user} - {self.quantity} : {self.product.name} "
+        return f"{self.user.email} - {self.quantity} : {self.product.name} - {self.checked}"
     
     def total_price(seft):
         return seft.product.price * seft.quantity
@@ -179,6 +180,13 @@ class Cart(models.Model):
             total += order.total_price()
         return total
 
+    def total_price_payment(self):
+        total = 0
+        for order in self.order.all():
+            if order.checked == True:
+                total = total + order.total_price()
+        return total
+
     def __str__(self):
         return f"Cart of {self.user}"
 
@@ -192,8 +200,12 @@ class CheckOut(models.Model):
         ('delivering', 'delivering'),
         ('in warehouse', 'in warehouse')
     ]
+    payment_or_shipping = [
+        ('payment', 'payment'),
+        ('shipping', 'shipping')
+    ]
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    order_Items = models.ManyToManyField(OrderProduct, blank=True)
+    order = models.ManyToManyField(OrderProduct, blank=True)
     address_delivery = models.ForeignKey(Address, on_delete=models.CASCADE)
     updated = models.DateTimeField(auto_now= True)
     created = models.DateTimeField(auto_now_add=True)
@@ -202,18 +214,23 @@ class CheckOut(models.Model):
         choices=status_order,
         default='in warehouse',
     )
+    payment_or_shipping = models.TextField(
+        max_length=50,
+        choices=payment_or_shipping,
+        default='shipping',
+    )
 
     class Meta: 
         ordering = ['-created']
     
     def total_bill(self):
         total = 0
-        for order in self.order_Items.all():
+        for order in self.order.all():
             total = total + order.total_price()
         return total
 
     def __str__(self):
-        return f"Check out for {self.user}"
+        return f"Check out for {self.user.email} - {self.payment_or_shipping}"
 
 # ----------------------------------------------------------------------------------------- #
 class Comment(models.Model):

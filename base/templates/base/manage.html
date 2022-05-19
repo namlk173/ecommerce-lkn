@@ -3,112 +3,201 @@
 {% block content %}
 
 {%  if page == 'manage-product' or page == 'Admin' %}
-<div class="d-flex justify-content-evenly topic-item p-2">
-    <a class="nav-link" href="{% url 'manage' %}"><div class="p-1 font-color2">All</div></a>
-    {% for category in categorys %}
-    <a class="nav-link" href="{% url 'manage' %}?q={{category}}"><div class="p-1 font-color2">{{category}}</div></a>
-    {% endfor %}
-</div>
-<div class="container-fluid pt-4" style="background-color: #f5f5fa;">
-    <div class="container" style="background-color: #ffffff;">
-        <p class="pt-3" style="font-size: 2rem;">Manage Product</p>
-        <div>
-            <strong class="choose_category">Add product</strong>
-        </div>
-        <div class="row pt-3 mb-5">
-            <div class="col-3 d-flex justify-content-start">
-                <form action=" " method="POST">
-                    {% csrf_token %}
-                    <select name="category" required id="id_category">
-                        {% for category in categorys %}
-                        <option value="{{category.id}}">{{category}}</option>
-                        {% endfor %}
-                    </select>
-                    <input type="submit" name="submit_category" id="submit_category" value="GO" class="btn-addproduct btn btn-sm">
-                </form>
-                
-            </div>
-        </div>       
-        <table class="table text-center">
-            <thead>
-                <tr>
-                <th scope="col">#</th>
-                <th scope="col">Name</th>
-                <th scope="col">Price</th>
-                <th scope="col">Product category</th>
-                <th scope="col">Action</th>
-                </tr>
-            </thead>
-            <tbody> 
-                {% for product in products %}
-                <tr>
-                <th scope="row" class="sn1">1</th>
-                <td><p class="book-name-dot book-name-dot-50">{{product.name}}</p></td>
-                <td>{{product.price}}đ</td>
-                <td>{{product.category.name}}</td>
-                <td>
-                    <div class="col d-flex justify-content-evenly">
-                        <a href="{% url 'order-product'  product.category.id product.id %}" style="color: #03a9f4; padding: 0 0.3rem;"><i class="fa-solid fa-eye"></i></a>
-                        <a href="{% url 'update-product' product.category.id product.id %}" style="color: #FFC107; padding: 0 0.3rem"><i class="fa-solid fa-pen"></i></a>
-                        <a href="{% url 'delete-product' product.id %}"onclick="if (confirm('Are you want to delete this product?')){return true;}else{event.stopPropagation(); event.preventDefault();};" style="color: #dc3545; padding: 0 0.3rem" ><i class="fa-solid fa-trash"></i></a>
-                    </div>
-                </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+<div class="manage-page">
+    <div class="d-flex justify-content-evenly topic-item p-2">
+        <a class="nav-link" href="{% url 'manage' %}"><div class="p-1 font-color2">All</div></a>
+        {% for category in categorys %}
+        <a class="nav-link" href="{% url 'manage' %}?q={{category}}"><div class="p-1 font-color2">{{category}}</div></a>
+        {% endfor %}
     </div>
-</div>
-{% endif %}
-{% if page == 'manage-order' or page == 'Admin' %}
-<form action="" method="post">
-    {% csrf_token %}
-    <div class="container-fluid pt-4" style="background-color: #f5f5fa;">
+    <div class="container-fluid pt-4 manage-products">
         <div class="container" style="background-color: #ffffff;">
-            <div class="d-flex justify-content-between">
-                <div class="pt-3" style="font-size: 2rem;">Manage order</div>  
-                <div class="pt-3"><input type="submit" name="update_checkout" id="" class="btn btn-primary" value="Update orders"></div>   
-                <div></div>
+            <p class="pt-3" style="font-size: 2rem;">Manage Product</p>
+            <div>
+                <strong class="choose_category">Add product</strong>
             </div>
-            <table class="table text-center">
-                <thead>
-                    <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Receiver</th>
-                    <th scope="col">Address</th>
-                    <th scope="col">Items ordered</th>
-                    <th scope="col">Status order</th>
-                    </tr>
-                </thead>
-                <tbody> 
-                    {% for checkout in checkouts %}
-                    <tr>
-                    <th scope="row" class="sn2">1</th>
-                    <td class="text-start">{{checkout.address_delivery.receiver}}</td>
-                    <td class="text-start">{{checkout.address_delivery.exact_address}}, {{checkout.address_delivery.ward}}, {{checkout.address_delivery.district}}, {{checkout.address_delivery.province}}, {{checkout.address_delivery.country}}</td>
+            <div class="row pt-3 mb-5">
+                <div class="col-3 d-flex justify-content-start">
+                    <form action=" " method="POST">
+                        {% csrf_token %}
+                        <select name="category" required id="id_category">
+                            {% for category in categorys %}
+                            <option value="{{category.id}}">{{category}}</option>
+                            {% endfor %}
+                        </select>
+                        <input type="submit" name="submit_category" id="submit_category" value="GO" class="btn-addproduct btn btn-sm">
+                    </form>
                     
-                    <td>
-                        {% for order in checkout.order_Items.all %}
-                        <div class="text-start">
-                            {{order.product}} - <span class="text-danger">{{order.quantity}}</span>
+                </div>
+            </div>       
+            <div class="col-12">
+                <div class="row text-center p-3 rounded bg-white mb-3 shadow-lg" >
+                    <div class="col-1">#</div>
+                    <div class="col-5 text-start">
+                        Name
+                    </div>
+                    <div class="col-2">Price</div>
+                    <div class="col-2">Category</div>
+                    <div class="col-2">Action</div>
+                </div>
+                
+                {% for product in products %}
+                <div class="row rounded bg-white text-center mb-3 p-3 shadow-lg">
+                    <div class="col-1 sn1 d-flex flex-column justify-content-center align-items-center">1</div>
+                    <div class="col-5 ">
+                        <div class="row">
+                            <div class="col-2 text-start mb-2">
+                                <div class="card border border-primary">
+                                    <img class="card-img-top" src="{{ product.image.url }}" alt="" style="width: 100%;">
+                                </div>
+                            </div>
+                            <div class="col-7 name-product-cart">
+                                {{product.name}} 
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-2 d-flex flex-column justify-content-center align-items-center">
+                        {{product.price}}
+                    </div>
+
+                    <div class="col-2 d-flex flex-column justify-content-center align-items-center">
+                        {{product.category}}
+                    </div>
+
+                    <div class="col-2 d-flex flex-column justify-content-center align-items-center">
+                        <div>
+                            <a href="{% url 'order-product'  product.category.id product.id %}" style="color: #03a9f4; padding: 0 0.3rem;"><i class="fa-solid fa-eye"></i></a>
+                            <a href="{% url 'update-product' product.category.id product.id %}" style="color: #FFC107; padding: 0 0.3rem"><i class="fa-solid fa-pen"></i></a>
+                            <a href="{% url 'delete-product' product.id %}"onclick="if (confirm('Are you want to delete this product?')){return true;}else{event.stopPropagation(); event.preventDefault();};" style="color: #dc3545; padding: 0 0.3rem" ><i class="fa-solid fa-trash"></i></a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% if page == 'manage-order' or page == 'Admin' %}
+    <div class="manage-checkouts">
+        <form action="" method="post">
+            {% csrf_token %}
+            <div class="container-fluid">
+                <div class="container bg-white p-5">
+                    <div class="d-flex justify-content-between">
+                        <div class="manage-checkouts-title">Manage checkout</div>
+                        <div><input type="submit" name="update_checkout" id="update_checkout" value="Update Orders" class="btn btn-primary"></div>
+                    </div>
+                    <div class="col-12">
+                        <div class="row text-center p-3 rounded bg-white mb-3 shadow-lg" >
+                            <div class="col-1">#</div>
+                            <div class="col-4 text-start">
+                                Orders
+                            </div>
+                            <div class="col-1">Total bill</div>
+                            <div class="col-1">SDT receiver</div>
+                            <div class="col-2">Receiver address </div>
+                            <div class="col-2">Receiver</div>
+                            <div class="col-1">Status order</div>
+                        </div>
+                        
+                        {% for checkout in checkouts %}
+                        <div class="row rounded bg-white text-center mb-3 p-3 shadow-lg">
+                            <div class="col-1 sn2 d-flex flex-column justify-content-center align-items-center">1</div>
+                            <div class="col-4">
+                                {% for order in checkout.order.all %}
+                                <div class="row">
+                                
+                                    <div class="col-2 text-start mb-2">
+                                        <a href="{% url 'order-product' order.product.category.id order.product.id %}">
+                                        <div class="card border border-primary">
+                                            <img class="card-img-top" src="{{ order.product.image.url }}" alt="" style="width: 100%;">
+                                        </div>
+                                        </a>
+                                    </div>
+                                    <div class="col-7 name-product-cart">
+                                        <a href="{% url 'order-product' order.product.category.id order.product.id %}" class="text-dark fs-08">
+                                        {{order.product.name}} 
+                                        </a>
+                                    </div>
+                                    <div class="col-3 d-flex justify-content-center align-items-center fs-08 text-danger">
+                                        {{order.quantity}} product - {{order.product.price}}đ/product 
+                                    </div>
+                                </div>
+
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="col-1  d-flex flex-column align-items-center justify-content-center  text-danger">
+                                <div class="fs-08">
+                                    {% if checkout.payment_or_shipping == 'payment' %}
+                                    0 đ
+                                    {% else %}
+                                    {{ checkout.total_bill }} đ
+                                    {% endif %}
+                                </div>
+                                <div class="fs-08">
+                                    {{ checkout.payment_or_shipping }}
+                                </div>
+                            </div>
+
+                            <div class="col-1  d-flex align-items-center justify-content-center fs-08">
+                                {{checkout.address_delivery.phone_number_receiver}}
+                            </div>
+
+                            <div class="col-2 d-flex align-items-center justify-content-center fs-08">
+                                {{checkout.address_delivery.exact_address}}, {{checkout.address_delivery.ward}}, {{checkout.address_delivery.district}}, {{checkout.address_delivery.province}}, {{checkout.address_delivery.country}}
+                            </div>
+
+                            <div class="col-2  d-flex align-items-center justify-content-center fs-08">
+                                {{checkout.address_delivery.receiver}}
+                            </div>
+
+                            <div class="col-1 d-flex align-items-center justify-content-center text-success">
+                                <select name="status_order_{{checkout.id}}" required id="checkout">
+                                    <option value="{{checkout.status_order}}" selected class="text-success">{{checkout.status_order}}</option>
+                                    <option value="in warehouse" class="text-warning">in warehouse</option>
+                                    <option value="delivering" class="text-primary">delivering</option>
+                                    <option value="completed" class="text-success">completed</option>
+                                </select>
+                            </div>
+
                         </div>
                         {% endfor %}
-                    </td>        
-                    <td>
-                        <select name="status_order_{{checkout.id}}" required id="checkout">
-                            <option value="{{checkout.status_order}}" selected class="text-success">{{checkout.status_order}}</option>
-                            <option value="in warehouse" class="text-warning">in warehouse</option>
-                            <option value="delivering" class="text-primary">delivering</option>
-                            <option value="completed" class="text-success">completed</option>
-                        </select>
-                    </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </div>
+                </div> 
+            </div>
+        </form>
+    </div>
+</div>
+<div class="col-2 bg-primary bg-gradient text-white pt-3 position-menu-extend rounded">
+    <div class="positon-menu-extend-parent">
+        <span class="p-2">Manage</span>
+        <div class="row text-cursor-pointer manage-products-menu">
+            <div><i class="fa-brands fa-product-hunt p-4"></i><span>Manage Products</span></div>
+        </div>
+        <div class="row text-cursor-pointer manage-checkouts-menu">
+            <div><i class="fa-solid fa-basket-shopping p-4"></i><span>Manage Orders</span></div>
+        </div>
+        <div class="text-primary text-cursor-pointer position-close-button">
+            <i class="fa-solid fa-xmark size-close-menu-button"></i>
         </div>
     </div>
-</form>
+</div>
+<div class="bg-primary bg-gradient text-white pt-3 position-menu-mini rounded">
+    <div class="positon-menu-mini-parent">
+        <span class="p-2">Manage</span>
+        <div class="row text-cursor-pointer manage-products-menu">
+            <div><i class="fa-brands fa-product-hunt p-4"></i></div>
+        </div>
+        <div class="row text-cursor-pointer manage-checkouts-menu">
+            <div><i class="fa-solid fa-basket-shopping p-4"></i></div>
+        </div>
+        <div class="text-primary text-cursor-pointer position-extend-button">
+            <i class="fa-solid fa-align-justify"></i>
+        </div>
+    </div>
+</div>
 {% endif %}
 {% if page == 'not permission' %}
 <div class="col-12 d-flex justify-content-center text-danger" style="margin-top: 8rem;">

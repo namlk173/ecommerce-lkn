@@ -97,10 +97,10 @@
             <div class="decription-product">{{form.description.value|linebreaks}}</div>
         </div>
     </div>
-    <div class="container bg-white" style=" margin-top: 2rem; padding-bottom: 1rem;">
+    <div class="container bg-white comment-view-container">
         <div class="title-product m-4 pt-2">Nhận xét từ khách hàng đã mua sản phẩm</div>
         {% for comment in comments %}
-        <div class="row p-2">
+        <div class="row p-2 shadow-lg comment-view">
             <div class="col-1 text-end"><img src="{{request.user.avatar.url}}" width="50%" class="rounded"></div>
             <div class="col-4 text-start">
                 <div class="fs-08 mb-2">@{{comment.user.username}}</div>
@@ -108,7 +108,6 @@
                 <div>{{comment.content}}</div>
             </div>
         </div>
-        <hr style="width: 90%; height: 1px; color: #ccc;" >
         {% endfor %}
     </div>
 </div>

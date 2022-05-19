@@ -3,11 +3,12 @@
 {% block content %}
 
 {% if request.user.functionality_of_user.name == 'Customer' %}
-<div class="container-fluid" style="background-color: #f5f5fa;">
+<div class="container-fluid position-cart-page" style="background-color: #f5f5fa;">
 <form action="" method="post">
     {% csrf_token %}
-    <div class="Cart-title">Cart</div>
-       <div class="container d-flex justify-content-around">
+    <div id="cart-form">
+        <div class="Cart-title">Cart</div>
+        <div class="container d-flex justify-content-around">
             <div class="col-8">
 
                 <div class="row text-center p-3 rounded bg-white mb-3" >
@@ -68,7 +69,7 @@
                     <div class="d-flex justify-content-between mb-3"> 
                         {% if address %}
                         <div>Giao tới</div>
-                        <div><a href="{% url 'choose-address-delivery' %}">Thay đổi</a></div>
+                        <div id="address-change"><a href="{% url 'choose-address-delivery' %}">Thay đổi</a></div>
                         {% else %}
                         <strong><a href="{% url 'choose-address-delivery' %}">Add address for delivery</strong></a>
                         {% endif %}
@@ -100,12 +101,26 @@
                 </div>
 
                 <div class="row bg-white rounded">
-                    <input type="submit" name="buy" id="buy" value="Buy(0)" class="btn btn-buy">
+                    <input type="button" name="buy" id="buy" value="Buy(0)" class="btn btn-buy">
                 </div>
 
             </div>
         </div>
     </div> 
+    <div class="col-4 bg-info bg-gradient p-3 rounded shadow-lg position-checkout" id="checkout-form">
+        <div class="row">
+            <div class="col-12 text-center p-3">
+                Check Out
+            </div>    
+        </div>
+        <div class="row p-3">
+            <div class="col-12 d-flex justify-content-around">
+                <div><input type="submit" name="shipping" id="shipping" value="Shipping" class="btn btn-danger"></div>
+                <div><input type="submit" name="payment" id="payment" value="Payment" class="btn btn-primary"></div>
+                <div id="cancel-checkout" class="btn btn-secondary">Cancel</div>
+            </div>
+        </div>
+    </div>
 </form>
 </div>
 {% else %}

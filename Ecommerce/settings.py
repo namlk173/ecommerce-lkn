@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'base.apps.BaseConfig',
+    'paypal.standard.ipn',    
 ]
 
 AUTH_USER_MODEL = 'base.User'
@@ -137,3 +138,7 @@ MEDIA_ROOT = BASE_DIR / 'static/images'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
+
+PAYPAL_RECEIVER_EMAIL = 'testaccount.business@business.com'
+
+PAYPAL_TEST = True

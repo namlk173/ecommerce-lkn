@@ -300,3 +300,101 @@ input{
     font-size: 0.7rem;
     color: rgb(60 177 125);
 }
+
+.account{
+    position: relative;
+    cursor: pointer;
+    padding-bottom: 2rem;
+}
+.toogle-account{
+    top: 3em;
+    position: absolute;
+    width: 16em;
+    background-color: white;
+    color: #ccc;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+.padding-toogle{
+    position: absolute;
+    width: 9rem;
+    height: 2rem;
+    top: 1rem;
+}
+.position-cart-page, .position-background-payment{
+    position: relative;
+}
+.position-background-payment{
+    height: 40rem;
+}
+.position-checkout{
+    position: fixed;
+    top: 30%;
+    right: 33%;
+}
+.position-payment-form{
+    position: fixed;
+    height: 20em;
+    top: 25%;
+    right: 33%;
+}
+.title-payment{
+    font-weight: bold;
+    color: white;
+    font-size: 1.8em;
+    margin-bottom: 4em;
+}
+.btn-cancel-payment{
+    font-weight: bold;
+    opacity: 0.8;
+}
+.manage-checkouts-title{
+    font-size: 2rem;
+
+}
+.comment-view-container{
+    margin-top: 2rem; 
+    padding-bottom: 1rem;
+}
+.comment-view{
+    margin-top: 2rem;
+}
+.text-cursor-pointer{
+    cursor: pointer;
+}
+.manage-page{
+    background-color: #f5f5fa;
+    position: relative;
+}
+.position-menu-extend{
+    position: fixed;
+    top:22%;
+    height: 50%;
+}
+.positon-menu-extend-parent{
+    position: relative;
+}
+.size-close-menu-button{
+    font-size: 2rem;
+}
+.position-close-button{
+    position: absolute;
+    top: 0rem;
+    right: -2rem;
+}
+.position-menu-mini{
+    position: fixed;
+    top: 22%;
+    width: 5%;
+    min-height: 50%;
+}
+.positon-menu-mini-parent{
+    position: relative;
+}
+.position-extend-button{
+    position: absolute;
+    top: 0;
+    right: -1.2rem;
+}
+.manage-product{
+    background-color: #f5f5fa;
+}

@@ -1,5 +1,11 @@
-from unicodedata import category
-from django.shortcuts import render, redirect
+import random
+import string
+from xmlrpc.client import boolean
+from django.conf import settings
+from paypal.standard.forms import PayPalPaymentsForm
+from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import render, HttpResponse, redirect, \
+    get_object_or_404, reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -18,10 +24,7 @@ def Home(request):
             request.user = Employee.objects.get(id=request.user.id)
             
     if request.user.is_authenticated:
-        try:
-            cart = Cart.objects.get(user__id = request.user.id)
-        except:
-            cart = {}
+        cart = get_object_or_404(Cart, user = request.user)
     else:
         cart = {}
     categorys = Category.objects.all()
@@ -130,18 +133,14 @@ def Manager(request):
             checkout.status_order = request.POST.get(f"status_order_{checkout.id}")
             checkout.save()
         messages.error(request,'Udpate status orders successful')
-    context = {'categorys' : categorys, 'products': products, 'cart': {}, 'checkouts':checkouts, 'page': page}
+    context = {'categorys' : categorys, 'products': products, 'checkouts':checkouts, 'page': page}
     return render(request, 'base/manage.html', context)
 
 # ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def DeleteProduct(request, pk):
     if request.user.functionality_of_user.name == 'Admin' or request.user.functionality_of_user.name == 'Employee':
-        try:
-            product = Product.objects.get(id= pk)
-        except:
-            messages.error(request, 'This product is not exist')
-            return redirect('manage')
+        product = get_object_or_404(Product, id=pk)
         try:
             product.delete()
             messages.success(request, 'Delete product successful')
@@ -157,7 +156,7 @@ def DeleteProduct(request, pk):
 @login_required(login_url='login')
 def createProduct(request, CategoryId):
     if request.user.functionality_of_user.name == 'Admin' or request.user.functionality_of_user.name == 'Employee': 
-        category = Category.objects.get(id=CategoryId)
+        category = get_object_or_404(Category, id=CategoryId)
         if category.name == 'Mobile Phone':
             form  = MobilePhoneForm()
         elif category.name == 'Book':
@@ -196,10 +195,13 @@ def updateProduct(request, CategoryId, pk):
             messages.error(request,'Product not exist!')
             return redirect('manage')
         if category.name == 'Book':
+            product = get_object_or_404(Book, id=pk)
             form = BookForm(instance=product)
         elif category.name == 'Mobile Phone':
+            product = get_object_or_404(MobilePhone, id=pk)
             form = MobilePhoneForm(instance=product)
         elif category.name =='Clothes':
+            product = get_object_or_404(Clothes, id=pk)
             form = ClothesForm(instance=product)
 
         if request.method == 'POST':
@@ -227,15 +229,12 @@ def updateProduct(request, CategoryId, pk):
 # ----------------------------------------------------------------------------------#
 def orderProduct(request, CategoryId, pk):
     if request.user.is_authenticated:
-        try:
-            cart = Cart.objects.get(user__id = request.user.id)
-        except:
-            cart = {}
+        cart = get_object_or_404(Cart, user=request.user)
     else:
         cart = {}
     product = None
     form = None
-    category = Category.objects.get(id= CategoryId)
+    category = get_object_or_404(Category, id= CategoryId)
     if category.name == 'Book':
         try:
             product = Book.objects.get(id=pk)
@@ -271,7 +270,7 @@ def orderProduct(request, CategoryId, pk):
                 quantity = quantity,
             )
             
-            cart = Cart.objects.get(user_id = request.user.id)
+            cart = get_object_or_404(Cart, user = request.user)
             orderOfUsers = cart.order.all()
 
             flag = False
@@ -327,10 +326,7 @@ def manageOrder(request):
 # ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def cart(request):
-    try:
-        cart = Cart.objects.get(user__id = request.user.id)
-    except:
-        cart = {}
+    cart = get_object_or_404(Cart, user = request.user)
     address = Address.objects.filter(Q(user__id = request.user.id) & Q(boolean =True))
     if request.method == 'POST':
         for order in cart.order.all():
@@ -338,24 +334,32 @@ def cart(request):
             order.quantity = request.POST.get(id_quantity)
             order.save()
 
-        if address:
-            checkbox_order_id = request.POST.getlist('checkbox_products[]') 
-            if checkbox_order_id:
-                check_out = CheckOut.objects.create(
-                    user = request.user,
-                    address_delivery = address[0]
-                )
+        checkbox_order_id = request.POST.getlist('checkbox_products[]') 
+        if checkbox_order_id:
+            for id_order_selected in checkbox_order_id:
+                order_selected = cart.order.get(id=int(id_order_selected))
+                order_selected.checked = True
+                order_selected.save()
+        else:
+            messages.error(request, 'You have to selected some order to buy!')
 
-                for id_order_selected in checkbox_order_id:
-                    try:
-                        order_selected = cart.order.get(id=int(id_order_selected))
-                        check_out.order_Items.add(order_selected)
-                        cart.order.remove(order_selected)
-                        messages.success(request, 'order successful')
-                    except:
-                        messages.error(request, 'Cant add order to check out')
-            else:
-                messages.error(request, 'You have to selected some order to buy!')
+
+        if address:
+            if 'shipping' in request.POST:
+                check_out = CheckOut.objects.create(
+                    address_delivery = address[0],
+                    user = request.user,
+                )
+                for order in cart.order.all():
+                    if order.checked == True:
+                        cart.order.remove(order)
+                        check_out.order.add(order)
+
+                messages.success(request, 'Order request completed')
+                return redirect('view-order')
+
+            elif 'payment' in request.POST:
+                return redirect('process-payment')
         else:
             messages.error(request, 'Please select an address for delivery')
 
@@ -366,10 +370,10 @@ def cart(request):
 # ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def deleteOrder(request, orderId):
-
+    cart = get_object_or_404(Cart, user = request.user)
     try:
-        cart = Cart.objects.get(user = request.user)
         order = cart.order.get(id = orderId)
+        # order.delete()
         cart.order.remove(order)
         messages.success(request, 'Delete order successful'); 
     except:
@@ -379,10 +383,8 @@ def deleteOrder(request, orderId):
 # ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def chooseAddressDelivery(request):
-    try:
-        cart = Cart.objects.get(user__id = request.user.id) 
-    except:
-        cart = {}
+
+    cart = get_object_or_404(Cart, user = request.user)
     list_address = Address.objects.filter(Q(user = request.user))
     list_address = sorted(list_address, key=lambda x: -(x.boolean))
     if request.method == 'POST':
@@ -402,7 +404,7 @@ def chooseAddressDelivery(request):
 @login_required(login_url='login')
 def updateAddressDelivery(request, pk):
     page = 'update'
-    address = Address.objects.get(id=pk)
+    address = get_object_or_404(Address, id=pk)
     form = AddressForm(instance = address)
 
     if request.method == 'POST':
@@ -442,7 +444,7 @@ def addAdressDelivery(request):
 # ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def deleteAddressDelivery(request, pk):
-    address = Address.objects.get(id=pk)
+    address = get_object_or_404(Address, id=pk)
     
     try:
         address.delete()
@@ -454,29 +456,24 @@ def deleteAddressDelivery(request, pk):
     context = {}
     return render(request, 'base/choose-address-delivery.html', context)
 
+# ----------------------------------------------------------------------------------#
 
 @login_required(login_url='login')
 def viewOrder(request):
     checkouts = CheckOut.objects.filter(Q(user = request.user) & (Q(status_order = 'in warehouse') | Q(status_order = 'delivering')))
-    checkouts = sorted(checkouts, key=lambda x: -(x.status_order =='in warehouse'))
-    try:
-        cart = Cart.objects.get(user = request.user)
-    except:
-        cart = {}
-    ordereds = CheckOut.objects.filter(Q(user = request.user) and Q(status_order = 'completed'))
+    checkouts_not_completed = sorted(checkouts, key=lambda x: -(x.status_order =='in warehouse'))
+    cart = get_object_or_404(Cart, user=request.user)
+    checkouts_completed = CheckOut.objects.filter(Q(user = request.user) and Q(status_order = 'completed'))
 
-    context = {'checkouts' : checkouts, 'cart': cart, 'ordereds': ordereds}
+    context = {'checkouts_not_completed' : checkouts_not_completed, 'cart': cart, 'checkouts_completed': checkouts_completed}
     return render(request, 'base/view-order.html', context)
 
+# ----------------------------------------------------------------------------------#
 
 def write_comment(request, categoryID, productID):
     permission = "no"
-    try:
-        cart = Cart.objects.get(user=request.user)
-    except:
-        cart = {}
-
-    category = Category.objects.get(id=categoryID)
+    cart = get_object_or_404(Cart, user=request.user)
+    category = get_object_or_404(Category, id=categoryID)
     if category.name == "Mobile Phone":
         try:
             product = MobilePhone.objects.get(id=productID)
@@ -498,7 +495,7 @@ def write_comment(request, categoryID, productID):
     checkouts = CheckOut.objects.filter(Q(user = request.user) & Q(status_order = 'completed'))
     try:
         for checkout in checkouts:
-            orders = checkout.order_Items.all()
+            orders = checkout.order.all()
             for order in orders:
                 if product.id == order.product.id:
                     permission = 'yes'
@@ -522,3 +519,60 @@ def write_comment(request, categoryID, productID):
 
     context = {'product': product, 'form': form, 'permission' : permission, 'cart': cart}
     return render(request, 'base/write-comment.html', context)
+
+# ----------------------------------------------------------------------------------#
+
+def process_payment(request):
+    
+    cart = get_object_or_404(Cart, user = request.user)
+    items_name = ''
+    for order in cart.order.filter(checked = True):
+        items_name += (str(order.quantity) + ' - ' + order.product.name[0:40] + ' | ')
+    host = request.get_host()
+    letters = string.ascii_lowercase
+    invoice_code = ''.join(random.choice(letters) for i in range(10))
+    invoice_code = invoice_code.join(str(random.randrange(1,10000000000)))
+    paypal_dict = {
+        'business': settings.PAYPAL_RECEIVER_EMAIL,
+        'amount': int(cart.total_price_payment())/23000,
+        'item_name':'({})'.format(items_name),
+        'quantity': 1,
+        'invoice' : invoice_code,
+        'currency_code': 'USD',
+        'notify_url': 'http//{}{}'.format(host, reverse('paypal-ipn')),
+        'return_url': 'http://{}{}'.format(host,
+                                           reverse('payment-done')),
+        'cancel_return': 'http://{}{}'.format(host,
+                                              reverse('payment-cancel')),
+        
+    }
+
+    form = PayPalPaymentsForm(initial=paypal_dict)
+    context = {'form': form, 'cart': cart}
+    return render(request, 'paypal/process.html', context)
+
+@csrf_exempt
+def payment_done(request):
+    cart = get_object_or_404(Cart, user = request.user)
+    address = get_object_or_404(Address, Q(user=request.user) & Q(boolean=True))
+
+    check_out = CheckOut.objects.create(
+        address_delivery = address,
+        user = request.user,
+        payment_or_shipping = 'payment',
+    )
+    for order in cart.order.all():
+        if order.checked == True:
+            cart.order.remove(order)
+            check_out.order.add(order)
+    messages.success(request, 'Order request completed')
+    return redirect('view-order')
+
+@csrf_exempt
+def payment_cancel(request):
+    cart = get_object_or_404(Cart, user = request.user)
+    for order in cart.order.all():
+        if order.checked == True:
+            order.checked = False
+            order.save()
+    return redirect('cart')

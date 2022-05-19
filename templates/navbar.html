@@ -29,11 +29,13 @@
                     <div><i class="fa-solid fa-caret-down"></i></div>
                     <div class="padding-toogle"></div>
                     <div class="toogle-account rounded" id="toogle-account">
+                        {%  if request.user.functionality_of_user.name == 'Customer' %}
                         <a href="{% url 'view-order' %}" class="text-dark fs-08">
                             <div class="p-2">
                                 View your order
                             </div>
                         </a>
+                        {% endif %}
                         <a href="{% url 'logout' %}" class="text-dark fs-08">
                             <div class="p-2">
                                 Logout
