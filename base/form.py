@@ -131,10 +131,11 @@ class ClothesForm(forms.ModelForm):
 class UserForm(ModelForm):
     class Meta:
         model = User
-        fields = ['avatar', 'full_name', 'username', 'phone_number', 'bio']
+        fields = ['avatar', 'full_name', 'username', 'dob', 'phone_number', 'bio']
     def __init__(self, *args, **kwargs):
         super(UserForm, self).__init__(*args, **kwargs)
         self.fields['avatar'].widget.attrs['class'] = 'avatar-update'
+        self.fields['dob'].widget.attrs['class'] = 'form-control'
         self.fields['full_name'].widget.attrs['class'] = 'form-control'
         self.fields['username'].widget.attrs['class'] = 'form-control'
         self.fields['phone_number'].widget.attrs['class'] = 'form-control'
