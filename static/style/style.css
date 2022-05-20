@@ -415,3 +415,9 @@ input{
 .border-b{
     border-bottom: 1px solid #dadada;
 }
+.title{
+    padding-top: 20px; 
+    color: #ff6219; 
+    font-size: 2rem; 
+    font-weight: 700;
+}

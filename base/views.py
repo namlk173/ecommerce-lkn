@@ -1,3 +1,4 @@
+from datetime import date, datetime
 import random
 import string
 from xmlrpc.client import boolean
@@ -23,17 +24,19 @@ def Home(request):
         if request.user.functionality_of_user.name == 'Employee':
             request.user = Employee.objects.get(id=request.user.id)
             
-    if request.user.is_authenticated:
-        cart = get_object_or_404(Cart, user = request.user)
-    else:
+    try:
+        cart = Cart.objects.get(user=request.user)
+    except:
         cart = {}
     categorys = Category.objects.all()
     q = request.GET.get('q') if request.GET.get('q') != None else ''
-    products = Product.objects.filter(Q(name__icontains=q) | Q(category__name__icontains = q))
-    products = sorted(products, key=lambda x: -(x.category.name == 'Book' or x.category.name == 'Clothes'))
+    if q =='onsale':
+        products = Product.objects.filter(Q(discount__gt = 0) & Q(start_discount__lt = datetime.now().date()) & Q(end_discount__gt = datetime.now().date()))
+    else:
+        products = Product.objects.filter((Q(name__icontains=q) | Q(category__name__icontains = q)))
+        products = sorted(products, key=lambda x: -(x.category.name == 'Book' or x.category.name == 'Clothes'))
     context = {'products':products, 'categorys':categorys, 'cart': cart}
     return render(request, 'base/home.html', context)
-
 def Login(request):
 
     page = 'login'
@@ -91,7 +94,12 @@ def registerPage(request):
 # ----------------------------------------------------------------------------------#
 
 def UpdateInfo(request):
-    cart = get_object_or_404(Cart, user = request.user)
+    
+    try:
+        cart = Cart.objects.get(user=request.user)
+    except:
+        cart = {}
+
     user = request.user
     form = UserForm(instance=user)
     if request.method == 'POST':
@@ -124,7 +132,11 @@ def Manager(request):
     
     q = request.GET.get('q') if request.GET.get('q') != None else ''
     categorys = Category.objects.all()
-    products = Product.objects.filter(Q(name__icontains = q) | Q(category__name__icontains = q))
+    if q =='onsale':
+        products = Product.objects.filter(Q(discount__gt = 0) & Q(start_discount__lt = datetime.now().date()) & Q(end_discount__gt = datetime.now().date()))
+    else:
+        products = Product.objects.filter((Q(name__icontains=q) | Q(category__name__icontains = q)))
+        products = sorted(products, key=lambda x: -(x.category.name == 'Book' or x.category.name == 'Clothes'))
     checkouts = CheckOut.objects.filter(Q(address_delivery__receiver__icontains = q))
     checkouts = sorted(checkouts, key = lambda x: -(x.status_order == 'in warehouse'or  x.status_order == 'delivering'))
 
@@ -179,7 +191,7 @@ def createProduct(request, CategoryId):
                 product.category = category
                 form.save()
                 messages.success(request, 'Create product successful')
-                return redirect('manage-product')
+                return redirect('manage')
             else:
                 messages.error(request, 'Some fields not vaild')
         context = {'form' : form, 'product': category.name, 'cart': {}}
@@ -220,7 +232,7 @@ def updateProduct(request, CategoryId, pk):
                 product.category = category
                 product.save()
                 messages.success(request, 'Update product successful')
-                return redirect('manage-product')
+                return redirect('manage')
             else:
                 messages.error(request, 'Some fields not vaild')
         context = {'category': category.name, 'form': form, 'cart': {}}
@@ -231,9 +243,9 @@ def updateProduct(request, CategoryId, pk):
         
 # ----------------------------------------------------------------------------------#
 def orderProduct(request, CategoryId, pk):
-    if request.user.is_authenticated:
-        cart = get_object_or_404(Cart, user=request.user)
-    else:
+    try:
+        cart = Cart.objects.get(user=request.user)
+    except:
         cart = {}
     product = None
     form = None
@@ -272,8 +284,6 @@ def orderProduct(request, CategoryId, pk):
                 product = product,
                 quantity = quantity,
             )
-            
-            cart = get_object_or_404(Cart, user = request.user)
             orderOfUsers = cart.order.all()
 
             flag = False
@@ -293,6 +303,7 @@ def orderProduct(request, CategoryId, pk):
     return render(request, 'base/order-product.html', context)
 
 # ----------------------------------------------------------------------------------#
+@login_required(login_url='login')
 def buyNow(request, pk):
     try:
         product = Product.objects.get(id=pk)
@@ -301,10 +312,8 @@ def buyNow(request, pk):
             product = product,
             quantity = 1,
         )
-        
-        cart = Cart.objects.get(user_id = request.user.id)
+        cart = Cart.objects.get(user = request.user)
         orderOfUsers = cart.order.all()
-
         flag = False
         for orderOfUser in orderOfUsers:
             if orderOfUser.product.id == product.id:
@@ -315,7 +324,10 @@ def buyNow(request, pk):
         if flag == False:
             cart.order.add(orderProduct)
     except:
-        messages.error(request, 'This product in not exist')
+        if request.user.functionality_of_user.name == 'Customer':
+            messages.error(request, 'This product in not exist')
+        else:
+            messages.error(request, 'You are employee and you can\'t buy it')
         return redirect('home')
     messages.success(request, 'Added product to your cart')
     return redirect('home')
@@ -329,7 +341,10 @@ def manageOrder(request):
 # ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def cart(request):
-    cart = get_object_or_404(Cart, user = request.user)
+    try:
+        cart = Cart.objects.get(user=request.user)
+    except:
+        cart = {}
     address = Address.objects.filter(Q(user__id = request.user.id) & Q(boolean =True))
     if request.method == 'POST':
         for order in cart.order.all():
@@ -373,7 +388,10 @@ def cart(request):
 # ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def deleteOrder(request, orderId):
-    cart = get_object_or_404(Cart, user = request.user)
+    try:
+        cart = Cart.objects.get(user=request.user)
+    except:
+        cart = {}
     try:
         order = cart.order.get(id = orderId)
         # order.delete()
@@ -387,7 +405,11 @@ def deleteOrder(request, orderId):
 @login_required(login_url='login')
 def chooseAddressDelivery(request):
 
-    cart = get_object_or_404(Cart, user = request.user)
+    try:
+        cart = Cart.objects.get(user=request.user)
+    except:
+        cart = {}
+
     list_address = Address.objects.filter(Q(user = request.user))
     list_address = sorted(list_address, key=lambda x: -(x.boolean))
     if request.method == 'POST':
@@ -465,7 +487,10 @@ def deleteAddressDelivery(request, pk):
 def viewOrder(request):
     checkouts = CheckOut.objects.filter(Q(user = request.user) & (Q(status_order = 'in warehouse') | Q(status_order = 'delivering')))
     checkouts_not_completed = sorted(checkouts, key=lambda x: -(x.status_order =='in warehouse'))
-    cart = get_object_or_404(Cart, user=request.user)
+    try:
+        cart = Cart.objects.get(user=request.user)
+    except:
+        cart = {}
     checkouts_completed = CheckOut.objects.filter(Q(user = request.user) and Q(status_order = 'completed'))
 
     context = {'checkouts_not_completed' : checkouts_not_completed, 'cart': cart, 'checkouts_completed': checkouts_completed}
@@ -475,7 +500,10 @@ def viewOrder(request):
 
 def write_comment(request, categoryID, productID):
     permission = "no"
-    cart = get_object_or_404(Cart, user=request.user)
+    try:
+        cart = Cart.objects.get(user=request.user)
+    except:
+        cart = {}
     category = get_object_or_404(Category, id=categoryID)
     if category.name == "Mobile Phone":
         try:
@@ -527,7 +555,11 @@ def write_comment(request, categoryID, productID):
 
 def process_payment(request):
     
-    cart = get_object_or_404(Cart, user = request.user)
+    try:
+        cart = Cart.objects.get(user=request.user)
+    except:
+        messages.error(request, 'You dont have cart and cant payment')
+        return redirect('home')
     items_name = ''
     for order in cart.order.filter(checked = True):
         items_name += (str(order.quantity) + ' - ' + order.product.name[0:40] + ' | ')
@@ -556,7 +588,10 @@ def process_payment(request):
 
 @csrf_exempt
 def payment_done(request):
-    cart = get_object_or_404(Cart, user = request.user)
+    try:
+        cart = Cart.objects.get(user=request.user)
+    except:
+        return redirect('home')
     address = get_object_or_404(Address, Q(user=request.user) & Q(boolean=True))
 
     check_out = CheckOut.objects.create(
@@ -573,7 +608,10 @@ def payment_done(request):
 
 @csrf_exempt
 def payment_cancel(request):
-    cart = get_object_or_404(Cart, user = request.user)
+    try:
+        cart = Cart.objects.get(user=request.user)
+    except:
+        return redirect('home')
     for order in cart.order.all():
         if order.checked == True:
             order.checked = False

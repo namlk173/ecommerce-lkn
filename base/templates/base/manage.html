@@ -5,7 +5,8 @@
 {%  if page == 'manage-product' or page == 'Admin' %}
 <div class="manage-page">
     <div class="d-flex justify-content-evenly topic-item p-2">
-        <a class="nav-link" href="{% url 'manage' %}"><div class="p-1 font-color2">All</div></a>
+        <a class="nav-link" href="{% url 'manage' %}"><div class="p-1 font-color2 text-success">All</div></a>
+        <a class="nav-link" href="{% url 'manage' %}?q=onsale"><div class="p-1 font-color2 text-danger">On sale</div></a>
         {% for category in categorys %}
         <a class="nav-link" href="{% url 'manage' %}?q={{category}}"><div class="p-1 font-color2">{{category}}</div></a>
         {% endfor %}
@@ -33,18 +34,21 @@
             <div class="col-12">
                 <div class="row text-center p-3 rounded bg-white mb-3 shadow-lg" >
                     <div class="col-1">#</div>
-                    <div class="col-5 text-start">
+                    <div class="col-4 text-start">
                         Name
                     </div>
-                    <div class="col-2">Price</div>
-                    <div class="col-2">Category</div>
-                    <div class="col-2">Action</div>
+                    <div class="col-1 fs-08">Price</div>
+                    <div class="col-1 fs-08">Start discount</div>
+                    <div class="col-1 fs-08">Discount value</div>
+                    <div class="col-1 fs-08">End discount</div>
+                    <div class="col-1 fs-08">Category</div>
+                    <div class="col-2 fs-08">Action</div>
                 </div>
                 
                 {% for product in products %}
                 <div class="row rounded bg-white text-center mb-3 p-3 shadow-lg">
                     <div class="col-1 sn1 d-flex flex-column justify-content-center align-items-center">1</div>
-                    <div class="col-5 ">
+                    <div class="col-4 ">
                         <div class="row">
                             <div class="col-2 text-start mb-2">
                                 <div class="card border border-primary">
@@ -57,14 +61,23 @@
                         </div>
                     </div>
                     
-                    <div class="col-2 d-flex flex-column justify-content-center align-items-center">
-                        {{product.price}}
+                    <div class="col-1 d-flex flex-column justify-content-center align-items-center fs-08 text-danger">
+                        {{product.price}} đ
+                    </div>
+                    <div class="col-1 d-flex flex-column justify-content-center align-items-center fs-08 text-info">
+                        {{product.start_discount}}
                     </div>
 
-                    <div class="col-2 d-flex flex-column justify-content-center align-items-center">
+                    <div class="col-1 d-flex flex-column justify-content-center align-items-center fs-08 text-danger">
+                        {{product.discount}} %
+                    </div>
+
+                    <div class="col-1 d-flex flex-column justify-content-center align-items-center fs-08 text-info">
+                        {{product.end_discount}}
+                    </div>
+                    <div class="col-1 d-flex flex-column justify-content-center align-items-center fs-08">
                         {{product.category}}
                     </div>
-
                     <div class="col-2 d-flex flex-column justify-content-center align-items-center">
                         <div>
                             <a href="{% url 'order-product'  product.category.id product.id %}" style="color: #03a9f4; padding: 0 0.3rem;"><i class="fa-solid fa-eye"></i></a>
@@ -169,6 +182,7 @@
             </div>
         </form>
     </div>
+    {% endif %}
 </div>
 <div class="col-2 bg-primary bg-gradient text-white pt-3 position-menu-extend rounded">
     <div class="positon-menu-extend-parent">
@@ -198,7 +212,6 @@
         </div>
     </div>
 </div>
-{% endif %}
 {% if page == 'not permission' %}
 <div class="col-12 d-flex justify-content-center text-danger" style="margin-top: 8rem;">
     <h3>You not have permission</h3>

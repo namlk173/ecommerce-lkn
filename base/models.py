@@ -89,7 +89,10 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     image = models.ImageField(null=True, default = "default.png")
     description = models.TextField(null=True, blank= True)
-    price = models.IntegerField()
+    discount = models.FloatField(default=0, help_text="%")
+    start_discount = models.DateField(null=True, blank=True, help_text='YYYY-MM-DD')
+    end_discount = models.DateField(null=True, blank=True, help_text='YYYY-MM-DD')
+    price = models.FloatField()
     updated = models.DateTimeField(auto_now= True)
     created = models.DateTimeField(auto_now_add=True)
 
@@ -97,7 +100,16 @@ class Product(models.Model):
         ordering  = ['-updated', '-created']
 
     def __str__(self):
-        return self.name
+        return f"{self.name}-{self.discount_price()}"
+
+    def discount_price(self):
+        discount_price = 0
+        if self.start_discount:
+            if self.start_discount<=datetime.now().date() and self.end_discount>=datetime.now().date():
+                discount_price = self.price * (100-self.discount)/100
+        else:
+            discount_price = self.price
+        return discount_price
 
 # ---------------------------------------------------------------------------------------- #
 class Book(Product):
