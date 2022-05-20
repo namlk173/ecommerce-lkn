@@ -3,10 +3,10 @@
 {% block content %}
 
   {% if page == 'login' %}
-  <div class="container-fluid vh-100" style="background: #ccc">
+  <div class="container-fluid vh-100 bg-c">
       <div class="row d-flex align-items-center justify-content-center h-100">
           <div class="col-5">
-              <div class="card text-white bg-dark" style="border-radius: 1rem;">
+              <div class="card text-white bg-dark rounded">
                   <div class="card-body text-center">
                       <h2 style="font-weight: bold; margin-top: 5vh;">LOGIN</h2>
                       <p style="margin-bottom: 8vh;">Please enter your info!</p>
@@ -29,10 +29,10 @@
   </div>
   
   {% else %}
-  <div class="container-fluid vh-100" style="background: #ccc;">
+  <div class="container-fluid vh-100 bg-c">
       <div class="row d-flex align-items-center justify-content-center h-100">
           <div class="col-5">
-              <div class="card text-white bg-dark" style="border-radius: 1rem;">
+              <div class="card text-white bg-dark rounded">
                   <div class="card-body text-center">
                       <h2 style="font-weight: bold; margin-top: 5vh;">Sign Up</h2>
                       <p>Please enter your info!</p>
@@ -42,7 +42,7 @@
                       <div class="form-outline form-white mb-4">
                         <form action="" method="POST" class="d-flex flex-column align-items-center">
                             {% csrf_token %}
-                            {{register_form}}
+                            {{form}}
                             <button type="submit" class="btn btn-outline-light px-5 bg-dark text-white mt-4 mb-5" name="register">Register</button>
                         </form>
                     </div>

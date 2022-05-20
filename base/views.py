@@ -1,4 +1,3 @@
-import email
 import random
 import string
 from xmlrpc.client import boolean
@@ -60,7 +59,7 @@ def Login(request):
             messages.error(request, 'Email does not exist')
 
     context = {'page': page, 'cart': {}}
-    return render(request, 'base/login-register.html', context)
+    return render(request, 'user/login-register.html', context)
 
 # ----------------------------------------------------------------------------------#
 def Logout(request):
@@ -86,8 +85,25 @@ def registerPage(request):
             return redirect('home')
         messages.error(request, 'Unsuccessful registration. Invalid information.')
     form = MyUserCreationForm()
-    return render(request, 'base/login-register.html',  {'cart': {}, 'register_form': form})
+    context = {'cart': {},'form': form,}
+    return render(request, 'user/login-register.html',  context)
 
+# ----------------------------------------------------------------------------------#
+
+def UpdateInfo(request):
+    cart = get_object_or_404(Cart, user = request.user)
+    user = request.user
+    form = UserForm(instance=user)
+    if request.method == 'POST':
+        form = UserForm(request.POST, request.FILES, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Update user successful')
+            return redirect('home')
+        else:
+            request.success(request, 'Have fields not valid')
+    context = {'form': form, 'cart': cart}
+    return render(request, 'user/update_user.html', context)
 # ----------------------------------------------------------------------------------#
 @login_required(login_url='login')
 def Manager(request):

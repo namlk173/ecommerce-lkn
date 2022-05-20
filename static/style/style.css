@@ -366,6 +366,7 @@ input{
     position: relative;
 }
 .position-menu-extend{
+    z-index: 1000;
     position: fixed;
     top:22%;
     height: 50%;
@@ -382,6 +383,7 @@ input{
     right: -2rem;
 }
 .position-menu-mini{
+    z-index: 1000;
     position: fixed;
     top: 22%;
     width: 5%;
@@ -397,4 +399,19 @@ input{
 }
 .manage-product{
     background-color: #f5f5fa;
+}
+.bg-c{
+    background-color: #f5f5fa;
+}
+.bg-d{
+    background-color: #212529;
+}
+.border-r{
+    border-right: 1px solid #dadada;
+}
+.mlc-2{
+    margin-left: 1em;
+}
+.border-b{
+    border-bottom: 1px solid #dadada;
 }

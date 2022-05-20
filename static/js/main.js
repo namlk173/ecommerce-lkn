@@ -206,10 +206,14 @@
         $('.manage-products-menu').click(function(){
             $('.manage-products').show();
             $('.manage-checkouts').hide();
+            $('.manage-products-menu').addClass('bg-info');
+            $('.manage-checkouts-menu').removeClass('bg-info');
         });
 
         $('.manage-checkouts-menu').click(function(){
             $('.manage-checkouts').show();
             $('.manage-products').hide();
+            $('.manage-checkouts-menu').addClass('bg-info');
+            $('.manage-products-menu').removeClass('bg-info');
         });
     });
