@@ -50,4 +50,10 @@
         </form>
     </div>
   </div>
+{% for message in messages %}
+<div class="alert alert-success alert-position" role="alert" id="alert">
+    {{message}}
+    <span class="btn-custom"><i class="fa-solid fa-xmark"></i></span>
+</div>
+{% endfor %}
 {% endblock %}

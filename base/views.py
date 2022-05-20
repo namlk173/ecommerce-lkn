@@ -101,7 +101,7 @@ def UpdateInfo(request):
             messages.success(request, 'Update user successful')
             return redirect('home')
         else:
-            request.success(request, 'Have fields not valid')
+            messages.error(request, 'Have fields not valid')
     context = {'form': form, 'cart': cart}
     return render(request, 'user/update_user.html', context)
 # ----------------------------------------------------------------------------------#
