@@ -42,7 +42,7 @@
                 </div>
                 <div class="row d-flex justify-content-start">
                     <div class="col-lg-7 col-sm-12 price-place" style="background-color: #fafafa;">
-                        <span class="price-product">{{product.price}} đ</span>
+                        <span class="price-product">{{product.discount_price}}đ <s class="text-secondary">{{product.price}}đ</s></span></span>
                     </div>
                 </div>
                 {% if request.user.functionality_of_user.name == 'Customer' %}

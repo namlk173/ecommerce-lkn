@@ -180,7 +180,7 @@ class OrderProduct(models.Model):
         return f"{self.user.email} - {self.quantity} : {self.product.name} - {self.checked}"
     
     def total_price(seft):
-        return seft.product.price * seft.quantity
+        return seft.product.discount_price() * seft.quantity
 
 # ---------------------------------------------------------------------------------------- #
 class Cart(models.Model):
