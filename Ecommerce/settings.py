@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-y^y%(*@599gamtxr5!yfgm&m)8m*^sn5@kaf#@-$ga$-ho$kmr
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'myapp-lkn.herokuapp.com']
+ALLOWED_HOSTS = ['ecommerce-lkn.herokuapp.com', '127.0.0.1']
 
 
 # Application definition
@@ -133,7 +133,6 @@ STATICFILES_DIRS = [
 ]
 
 MEDIA_ROOT = BASE_DIR / 'static/images'
-STATIC_ROOT = BASE_DIR / 'media/images'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
