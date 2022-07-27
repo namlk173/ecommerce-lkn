@@ -490,7 +490,7 @@ def viewOrder(request):
         cart = Cart.objects.get(user=request.user)
     except:
         cart = {}
-    checkouts_completed = CheckOut.objects.filter(Q(user = request.user) and Q(status_order = 'completed'))
+    checkouts_completed = CheckOut.objects.filter(Q(user = request.user) & Q(status_order = 'completed'))
 
     context = {'checkouts_not_completed' : checkouts_not_completed, 'cart': cart, 'checkouts_completed': checkouts_completed}
     return render(request, 'base/view-order.html', context)
