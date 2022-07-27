@@ -11,7 +11,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
-from matplotlib.style import context
 from .models import Address, CheckOut, Employee, MobilePhone, User, Product, Book, Clothes, Category, OrderProduct, Cart, Function, Comment
 from .form import UserForm, MyUserCreationForm, MobilePhoneForm, BookForm, ClothesForm, AddressForm, CommentForm
 
